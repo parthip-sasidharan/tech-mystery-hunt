@@ -45,7 +45,7 @@ export default function WaitingRoomPage() {
   const [startingMission, setStartingMission] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
 
-  const fetchStatus = async () => {
+  const fetchInitialProfile = async () => {
     try {
       const token = typeof window !== "undefined" ? localStorage.getItem("techhunt_token") : null;
       const headers: Record<string, string> = {};
@@ -60,10 +60,6 @@ export default function WaitingRoomPage() {
       const configData = await configRes.json();
 
       if (!authData.authenticated || authData.role !== "TEAM") {
-        if (!token) {
-          router.replace("/login");
-          return;
-        }
         if (typeof window !== "undefined") localStorage.removeItem("techhunt_token");
         router.replace("/login");
         return;
@@ -74,22 +70,47 @@ export default function WaitingRoomPage() {
         setGameStatus(configData.gameStatus);
       }
 
-      // If team is already on mission, auto-forward to hunt console
       if (authData.user?.currentStage === "HUNTING" || authData.user?.currentStage === "TREASURE_SEARCH") {
         router.replace("/hunt");
         return;
       }
     } catch (err) {
-      console.error("Polling error", err);
+      console.error("Profile load error", err);
     } finally {
       setLoading(false);
     }
   };
 
+  const pollGameStatus = async () => {
+    if (typeof document !== "undefined" && document.hidden) return;
+    try {
+      const res = await fetch("/api/config");
+      if (res.ok) {
+        const configData = await res.json();
+        if (configData.gameStatus) {
+          setGameStatus(configData.gameStatus);
+        }
+      }
+    } catch {
+      // transient polling error
+    }
+  };
+
   useEffect(() => {
-    fetchStatus();
-    const interval = setInterval(fetchStatus, 3500);
-    return () => clearInterval(interval);
+    fetchInitialProfile();
+    const interval = setInterval(pollGameStatus, 5000);
+
+    const handleVisibilityChange = () => {
+      if (typeof document !== "undefined" && !document.hidden) {
+        pollGameStatus();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, []);
 
   const handleStartMission = async () => {

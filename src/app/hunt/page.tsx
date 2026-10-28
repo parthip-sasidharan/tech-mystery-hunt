@@ -221,9 +221,21 @@ export default function HuntPage() {
   useEffect(() => {
     loadCheckpointState();
     const interval = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
       loadCheckpointState();
-    }, 3500);
-    return () => clearInterval(interval);
+    }, 7000);
+
+    const handleVisibilityChange = () => {
+      if (typeof document !== "undefined" && !document.hidden) {
+        loadCheckpointState();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [loadCheckpointState]);
 
   const stopCamera = useCallback(() => {

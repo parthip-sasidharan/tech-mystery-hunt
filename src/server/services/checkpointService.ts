@@ -31,19 +31,30 @@ export async function getCheckpointPenaltyTask(sequenceNumber: number): Promise<
   );
 }
 
+const routeCache = new Map<string, { sequence: number[]; totalCheckpoints: number; expiresAt: number }>();
+
+export function invalidateRouteCache() {
+  routeCache.clear();
+}
+
 /**
  * Returns the effective sequence of checkpoint numbers for a team's route,
  * respecting the configured checkpoint count (e.g. 8 or 10 checkpoints).
  * Strict validation: Never silently falls back to an invalid or synthetic sequence.
  */
 export async function getEffectiveRouteSequence(routeId: string | null): Promise<number[]> {
-  await connectToDatabase();
-  const totalCheckpoints = await getCheckpointCount(); // 8 or 10
-
   if (!routeId) {
     throw new Error("No route has been assigned to this team. Please contact the administrator.");
   }
 
+  const totalCheckpoints = await getCheckpointCount(); // 8 or 10
+  const now = Date.now();
+  const cached = routeCache.get(routeId);
+  if (cached && cached.totalCheckpoints === totalCheckpoints && now < cached.expiresAt) {
+    return cached.sequence;
+  }
+
+  await connectToDatabase();
   const queryRouteId =
     typeof routeId === "string" && routeId.length === 24 && /^[0-9a-fA-F]{24}$/.test(routeId)
       ? new mongoose.Types.ObjectId(routeId)
@@ -88,7 +99,9 @@ export async function getEffectiveRouteSequence(routeId: string | null): Promise
     );
   }
 
-  return rawSequence;
+  const effective = rawSequence.slice(0, totalCheckpoints);
+  routeCache.set(routeId, { sequence: effective, totalCheckpoints, expiresAt: now + 15000 });
+  return effective;
 }
 
 /**
