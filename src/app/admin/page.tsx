@@ -513,15 +513,16 @@ export default function AdminPage() {
         fetch("/api/admin/readiness", { headers, credentials: "include" }),
       ]);
 
-      const authData = await authRes.json();
-      if (!authData.authenticated || authData.role !== "ADMIN") {
-        if (!token) {
+      if (!authRes.ok && authRes.status !== 401) {
+        console.error("Auth check returned non-401 error:", authRes.status);
+        showNotification("Syncing with game console...", false);
+      } else {
+        const authData = await authRes.json();
+        if (!authData.authenticated || authData.role !== "ADMIN") {
+          if (typeof window !== "undefined") localStorage.removeItem("techhunt_token");
           router.replace("/staff-login");
           return;
         }
-        if (typeof window !== "undefined") localStorage.removeItem("techhunt_token");
-        router.replace("/staff-login");
-        return;
       }
 
       const ovData = await overviewRes.json();

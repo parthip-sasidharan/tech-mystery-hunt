@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 import { requireAuth } from "@/server/middleware/auth";
 import { getTeamProfile } from "@/server/services/teamService";
 import { connectToDatabase } from "@/server/db";
-import { User } from "@/server/models";
+import { User, Team } from "@/server/models";
 
 export async function GET() {
   try {
@@ -10,7 +11,13 @@ export async function GET() {
     if (error) return error;
 
     if (session!.role === "TEAM") {
-      const team = await getTeamProfile(session!.sub);
+      let team = await getTeamProfile(session!.sub);
+      if (!team && session!.usernameOrTeamId) {
+        const rawTeam = await Team.findOne({ teamId: session!.usernameOrTeamId.toUpperCase() }).lean();
+        if (rawTeam) {
+          team = await getTeamProfile(String(rawTeam._id));
+        }
+      }
       if (!team) {
         return NextResponse.json({ authenticated: false, user: null });
       }
@@ -36,7 +43,25 @@ export async function GET() {
 
     // Admin or Volunteer
     await connectToDatabase();
-    const user = await User.findById(session!.sub).select("username name email role active").lean();
+    let user = null;
+    try {
+      if (mongoose.isValidObjectId(session!.sub)) {
+        user = await User.findById(session!.sub).select("username name email role active").lean();
+      }
+    } catch {
+      // fallback to query
+    }
+
+    if (!user) {
+      user = await User.findOne({
+        $or: [
+          ...(mongoose.isValidObjectId(session!.sub) ? [{ _id: new mongoose.Types.ObjectId(session!.sub) }] : []),
+          { _id: session!.sub },
+          { username: session!.usernameOrTeamId?.toLowerCase() },
+          { email: session!.usernameOrTeamId?.toLowerCase() },
+        ],
+      }).select("username name email role active").lean();
+    }
 
     if (!user || !user.active) {
       return NextResponse.json({ authenticated: false, user: null });

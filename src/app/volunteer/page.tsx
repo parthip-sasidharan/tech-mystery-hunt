@@ -117,16 +117,15 @@ export default function VolunteerPage() {
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const authRes = await fetch("/api/auth/me", { headers, credentials: "include" });
-      const authData = await authRes.json();
-
-      if (!authData.authenticated || (authData.role !== "VOLUNTEER" && authData.role !== "ADMIN")) {
-        if (!token) {
+      if (!authRes.ok && authRes.status !== 401) {
+        console.error("Volunteer auth returned non-401:", authRes.status);
+      } else {
+        const authData = await authRes.json();
+        if (!authData.authenticated || (authData.role !== "VOLUNTEER" && authData.role !== "ADMIN")) {
+          if (typeof window !== "undefined") localStorage.removeItem("techhunt_token");
           router.replace("/staff-login");
           return;
         }
-        if (typeof window !== "undefined") localStorage.removeItem("techhunt_token");
-        router.replace("/staff-login");
-        return;
       }
 
       const [res, taskRes] = await Promise.all([
