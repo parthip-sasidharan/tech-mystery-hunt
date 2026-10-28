@@ -109,6 +109,8 @@ export default function HuntPage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isScanningRef = useRef(false);
+  const lastScannedTokenRef = useRef<{ token: string; timestamp: number } | null>(null);
 
   // Question solving state
   const [answerInput, setAnswerInput] = useState("");
@@ -240,7 +242,24 @@ export default function HuntPage() {
   }, []);
 
   const triggerScan = useCallback(async (token: string) => {
-    if (!token.trim()) return;
+    const cleanToken = token.trim();
+    if (!cleanToken) return;
+
+    // Prevent duplicate concurrent scan requests
+    if (isScanningRef.current) return;
+
+    // Debounce duplicate scans of the exact same token within 3 seconds
+    const now = Date.now();
+    if (
+      lastScannedTokenRef.current &&
+      lastScannedTokenRef.current.token === cleanToken &&
+      now - lastScannedTokenRef.current.timestamp < 3000
+    ) {
+      return;
+    }
+
+    isScanningRef.current = true;
+    lastScannedTokenRef.current = { token: cleanToken, timestamp: now };
     setScanLoading(true);
     setScanMessage(null);
 
@@ -249,7 +268,7 @@ export default function HuntPage() {
         method: "POST",
         headers: getAuthHeaders(),
         credentials: "include",
-        body: JSON.stringify({ qrToken: token.trim() }),
+        body: JSON.stringify({ qrToken: cleanToken }),
       });
 
       const data = await res.json();
@@ -267,8 +286,11 @@ export default function HuntPage() {
       setScanMessage({ type: "error", text: message });
     } finally {
       setScanLoading(false);
+      setTimeout(() => {
+        isScanningRef.current = false;
+      }, 1500);
     }
-  }, [loadCheckpointState, stopCamera]);
+  }, [loadCheckpointState, stopCamera, getAuthHeaders]);
 
   const startCamera = async () => {
     setCameraError(null);
@@ -294,6 +316,7 @@ export default function HuntPage() {
               // @ts-expect-error BarcodeDetector might not be in standard TypeScript lib
               const barcodeDetector = new window.BarcodeDetector({ formats: ["qr_code"] });
               scanIntervalRef.current = setInterval(async () => {
+                if (isScanningRef.current) return;
                 if (videoRef.current && videoRef.current.readyState >= 2) {
                   try {
                     const barcodes = await barcodeDetector.detect(videoRef.current);
@@ -304,7 +327,7 @@ export default function HuntPage() {
                     // Ignore transient frame detection error
                   }
                 }
-              }, 400);
+              }, 750);
             } catch {
               // BarcodeDetector constructor failed
             }

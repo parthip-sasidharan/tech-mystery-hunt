@@ -15,12 +15,12 @@ const answerBuckets = new Map<string, RateBucket>();
 
 /**
  * Checks and increments QR scan attempt rate for a specific team.
- * Limit: Max 12 scan attempts per minute.
+ * Limit: Max 25 scan attempts per 20-second rolling window.
  */
 export function checkQrScanRateLimit(teamId: string): { allowed: boolean; waitSeconds?: number } {
   const now = Date.now();
-  const windowMs = 60 * 1000;
-  const maxAttempts = 12;
+  const windowMs = 20 * 1000;
+  const maxAttempts = 25;
 
   const bucket = qrScanBuckets.get(teamId);
   if (!bucket || now > bucket.resetAt) {
@@ -39,15 +39,15 @@ export function checkQrScanRateLimit(teamId: string): { allowed: boolean; waitSe
 
 /**
  * Checks and increments answer submission rate for a specific team on a checkpoint.
- * Limit: Max 8 answer attempts per minute per checkpoint.
+ * Limit: Max 15 answer attempts per 20-second window per checkpoint.
  */
 export function checkAnswerRateLimit(
   teamId: string,
   checkpointId: string
 ): { allowed: boolean; waitSeconds?: number } {
   const now = Date.now();
-  const windowMs = 60 * 1000;
-  const maxAttempts = 8;
+  const windowMs = 20 * 1000;
+  const maxAttempts = 15;
 
   const key = `${teamId}_${checkpointId}`;
   const bucket = answerBuckets.get(key);
