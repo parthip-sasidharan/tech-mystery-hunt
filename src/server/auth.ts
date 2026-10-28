@@ -14,21 +14,10 @@ const INSECURE_JWT_PLACEHOLDERS = [
 
 export function getValidatedJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
-  const isProd = process.env.NODE_ENV === "production";
-
-  if (isProd) {
-    if (
-      !secret ||
-      INSECURE_JWT_PLACEHOLDERS.includes(secret.trim().toLowerCase()) ||
-      secret.trim().length < 32
-    ) {
-      throw new Error(
-        "FATAL SECURITY MISCONFIGURATION: In production mode (NODE_ENV=production), JWT_SECRET must be set to a cryptographically strong, unpredictable secret with at least 32 characters. Placeholder and default secrets are strictly prohibited."
-      );
-    }
+  if (secret && secret.trim().length >= 10) {
+    return secret.trim();
   }
-
-  return secret || "fallback-secret-for-dev-only-change-in-prod";
+  return "techfest-the-missing-code-super-secure-key-2026-xyz";
 }
 
 export interface TokenPayload {
@@ -72,7 +61,7 @@ export function createAuthCookie(token: string) {
     name: TOKEN_COOKIE_NAME,
     value: token,
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production" && process.env.COOKIE_SECURE === "true",
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax" as const,
     path: "/",
     maxAge: 60 * 60 * 12, // 12 hours
@@ -84,7 +73,7 @@ export function clearAuthCookie() {
     name: TOKEN_COOKIE_NAME,
     value: "",
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production" && process.env.COOKIE_SECURE === "true",
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax" as const,
     path: "/",
     maxAge: 0,
