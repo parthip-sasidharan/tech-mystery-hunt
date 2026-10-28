@@ -1,6 +1,7 @@
 import { connectToDatabase } from "../db";
 import { Route, Checkpoint, Team, TeamProgress, AuditLog } from "../models";
 import { getCheckpointCount, getGameStatus } from "./gameService";
+import { invalidateRouteCache } from "./checkpointService";
 
 export interface RouteValidationResult {
   routeId: string;
@@ -392,5 +393,135 @@ export async function deleteRoute(routeId: string, adminId: string) {
   return {
     success: true,
     message: `Route "${route.name}" deleted.`,
+  };
+}
+
+/**
+ * Generates N mathematically valid, distinct, circular-spaced routes for 10-checkpoint event.
+ * Steps 1..8: Permutations of 1..8 using circular shifts and coprime step strides.
+ * Step 9: Checkpoint 9.
+ * Step 10: Checkpoint 10 (Final Treasure).
+ */
+export function generateDistinctRoutes(count: number): Array<{ name: string; sequence: number[] }> {
+  const base = [1, 2, 3, 4, 5, 6, 7, 8];
+  const routes: Array<{ name: string; sequence: number[] }> = [];
+  const seen = new Set<string>();
+  const strides = [1, 3, 5, 7, 2];
+  const directions = [1, -1];
+
+  for (const stride of strides) {
+    for (const dir of directions) {
+      for (let startIdx = 0; startIdx < 8; startIdx++) {
+        if (routes.length >= count) break;
+        const seq: number[] = [];
+        const used = new Set<number>();
+        let curr = startIdx;
+        while (seq.length < 8) {
+          const val = base[curr];
+          if (!used.has(val)) {
+            seq.push(val);
+            used.add(val);
+          }
+          curr = (curr + dir * stride + 80) % 8;
+        }
+        for (const b of base) {
+          if (!used.has(b)) seq.push(b);
+        }
+        const fullSequence = [...seq, 9, 10];
+        const key = fullSequence.join(",");
+        if (!seen.has(key)) {
+          seen.add(key);
+          const routeNum = String(routes.length + 1).padStart(2, "0");
+          routes.push({
+            name: `Route ${routeNum}`,
+            sequence: fullSequence,
+          });
+        }
+      }
+      if (routes.length >= count) break;
+    }
+    if (routes.length >= count) break;
+  }
+
+  // Fallback seed generator if count > 80
+  let seed = 42;
+  while (routes.length < count) {
+    const arr = [...base];
+    for (let i = arr.length - 1; i > 0; i--) {
+      seed = (seed * 9301 + 49297) % 233280;
+      const j = Math.floor((seed / 233280) * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    const fullSequence = [...arr, 9, 10];
+    const key = fullSequence.join(",");
+    if (!seen.has(key)) {
+      seen.add(key);
+      const routeNum = String(routes.length + 1).padStart(2, "0");
+      routes.push({
+        name: `Route ${routeNum}`,
+        sequence: fullSequence,
+      });
+    }
+  }
+
+  return routes;
+}
+
+/**
+ * Dynamically scales routes so that at most 2 teams share any route.
+ * Generates N/2 distinct, fair-distance, circular-shifted routes ending in [9, 10].
+ * Automatically reassigns teams evenly across these routes.
+ */
+export async function autoScaleTwoTeamsPerRoute(adminId: string) {
+  await connectToDatabase();
+  const teams = await Team.find({ status: { $ne: "DISQUALIFIED" } }).sort({ createdAt: 1 });
+  if (teams.length === 0) {
+    throw new Error("No registered teams found. Please register teams before auto-scaling routes.");
+  }
+
+  const routeCount = Math.max(4, Math.ceil(teams.length / 2));
+  const distinctRoutes = generateDistinctRoutes(routeCount);
+
+  // Clear existing routes and recreate
+  await Route.deleteMany({});
+
+  const createdRoutes = [];
+  for (const r of distinctRoutes) {
+    const doc = await Route.create({
+      name: r.name,
+      description: `Auto-generated balanced pair route (Max 2 teams)`,
+      checkpointSequence: JSON.stringify(r.sequence),
+      active: true,
+    });
+    createdRoutes.push(doc);
+  }
+
+  // Assign exactly 2 teams per route
+  for (let i = 0; i < teams.length; i++) {
+    const routeIndex = Math.floor(i / 2) % createdRoutes.length;
+    const targetRoute = createdRoutes[routeIndex];
+    teams[i].routeId = String(targetRoute._id);
+    await teams[i].save();
+  }
+
+  // Invalidate any in-memory route caches
+  invalidateRouteCache();
+
+  await AuditLog.create({
+    action: "ROUTES_AUTO_SCALED_PAIR",
+    actorRole: "ADMIN",
+    actorId: adminId,
+    details: JSON.stringify({
+      totalTeams: teams.length,
+      routeCount: createdRoutes.length,
+      maxTeamsPerRoute: 2,
+    }),
+  });
+
+  return {
+    success: true,
+    totalTeams: teams.length,
+    routeCount: createdRoutes.length,
+    message: `Generated ${createdRoutes.length} balanced routes for ${teams.length} teams. Exactly 2 teams per route!`,
   };
 }

@@ -37,7 +37,8 @@ import {
   Shuffle,
   Package,
   ShieldAlert,
-  Video
+  Video,
+  Zap
 } from "lucide-react";
 
 interface TeamItem {
@@ -455,6 +456,7 @@ export default function AdminPage() {
   } | null>(null);
   const [autoAssignLoading, setAutoAssignLoading] = useState(false);
   const [autoAssignApplying, setAutoAssignApplying] = useState(false);
+  const [autoScaleLoading, setAutoScaleLoading] = useState(false);
 
   // Individual Team Route Assignment Modal
   const [routeAssignTargetTeam, setRouteAssignTargetTeam] = useState<TeamItem | null>(null);
@@ -1431,6 +1433,32 @@ export default function AdminPage() {
       showNotification(err instanceof Error ? err.message : "Error applying assignments", true);
     } finally {
       setAutoAssignApplying(false);
+    }
+  };
+
+  const handleAutoScalePairRoutes = async () => {
+    if (!confirm("⚡ AUTO-SCALE ROUTES (MAX 2 TEAMS / ROUTE):\n\nThis will count all registered teams and dynamically generate balanced routes so that AT MOST 2 TEAMS share any route!\n\nEvery route will finish with Checkpoint 9, then Checkpoint 10.\n\nProceed?")) {
+      return;
+    }
+    setAutoScaleLoading(true);
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("techhunt_token") : null;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const res = await fetch("/api/admin/routes/auto-scale", {
+        method: "POST",
+        headers,
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to auto-scale routes");
+      showNotification(data.message || "Routes auto-scaled successfully!");
+      await Promise.all([fetchOverviewData(), fetchRoutes()]);
+    } catch (err: unknown) {
+      showNotification(err instanceof Error ? err.message : "Error auto-scaling routes", true);
+    } finally {
+      setAutoScaleLoading(false);
     }
   };
 
@@ -2529,6 +2557,16 @@ URL: ${window.location.origin}/login`;
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={handleAutoScalePairRoutes}
+                disabled={autoScaleLoading}
+                className="px-4 py-2 rounded-xl bg-amber-400 text-black font-bold text-xs font-mono hover:bg-amber-300 transition-all flex items-center gap-1.5 disabled:opacity-50 shadow-glow-amber"
+                title="Counts registered teams and creates N/2 routes so at most 2 teams share any route!"
+              >
+                <Zap className={`w-4 h-4 ${autoScaleLoading ? "animate-spin" : ""}`} />
+                Auto-Scale (2 Teams / Route)
+              </button>
+
               <button
                 onClick={handleFetchAutoAssignPreview}
                 disabled={autoAssignLoading}
