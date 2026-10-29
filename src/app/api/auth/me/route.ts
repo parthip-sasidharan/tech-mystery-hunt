@@ -46,26 +46,29 @@ export async function GET() {
     // Admin or Volunteer
     await connectToDatabase();
     let user = null;
-    try {
-      if (mongoose.isValidObjectId(session!.sub)) {
-        user = await User.findById(session!.sub).select("username name email role active").lean();
+
+    const orConditions: any[] = [];
+    if (mongoose.isValidObjectId(session!.sub)) {
+      orConditions.push({ _id: session!.sub });
+    }
+    if (session!.usernameOrTeamId) {
+      orConditions.push({ username: session!.usernameOrTeamId.toLowerCase() });
+      orConditions.push({ email: session!.usernameOrTeamId.toLowerCase() });
+    }
+
+    if (orConditions.length > 0) {
+      try {
+        user = await User.findOne({ $or: orConditions }).select("username name email role active").lean();
+      } catch {
+        user = null;
       }
-    } catch {
-      // fallback to query
     }
 
-    if (!user) {
-      user = await User.findOne({
-        $or: [
-          ...(mongoose.isValidObjectId(session!.sub) ? [{ _id: new mongoose.Types.ObjectId(session!.sub) }] : []),
-          { _id: session!.sub },
-          { username: session!.usernameOrTeamId?.toLowerCase() },
-          { email: session!.usernameOrTeamId?.toLowerCase() },
-        ],
-      }).select("username name email role active").lean();
+    if (!user && session!.role === "ADMIN") {
+      user = await User.findOne({ role: "ADMIN", active: { $ne: false } }).select("username name email role active").lean();
     }
 
-    if (!user || !user.active) {
+    if (!user || user.active === false) {
       const unauthRes = NextResponse.json({ authenticated: false, user: null });
       unauthRes.cookies.delete("techhunt_token");
       return unauthRes;
