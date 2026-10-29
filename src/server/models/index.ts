@@ -222,6 +222,7 @@ export interface ICheckpoint extends Document {
 
 const CheckpointSchema = new Schema<ICheckpoint>(
   {
+    _id: { type: Schema.Types.Mixed },
     sequenceNumber: { type: Number, required: true, unique: true, index: true },
     name: { type: String, required: true, trim: true },
     locationHint: { type: String, required: true },
@@ -253,6 +254,7 @@ export interface IQuestion extends Document {
 
 const QuestionSchema = new Schema<IQuestion>(
   {
+    _id: { type: Schema.Types.Mixed },
     checkpointId: { type: String, required: true, index: true },
     prompt: { type: String, required: true },
     type: { type: String, default: "MULTIPLE_CHOICE" },
