@@ -219,9 +219,9 @@ async function main() {
     },
     {
       sequenceNumber: 9,
-      name: "Medicinal Garden",
-      campusArea: "Campus Herbal & Medicinal Garden",
-      locationHint: "My residents possess identities older than the institutions that study them, yet most pass unnoticed by those who cannot interpret their language. Their knowledge is neither written nor spoken, and their greatest secret is that the boundary between remedy and ordinary existence depends on the observer.",
+      name: "Service Center",
+      campusArea: "Campus Service & Maintenance Center",
+      locationHint: "Where does failure become a question instead of a conclusion, and where can something declared useless regain its former purpose?",
       qrCodeToken: "QR_TOKEN_CP09_RADIO_6E3F",
       isFinalTreasure: false,
       question: {
@@ -235,9 +235,9 @@ async function main() {
     },
     {
       sequenceNumber: 10,
-      name: "Grand Final Treasure Vault",
-      campusArea: "Main Stage Vault / Auditorium",
-      locationHint: "🏆 GRAND FINAL TREASURE VAULT: The ultimate culmination point! Locate the buried/guarded treasure box coordinates and verify your physical victory with the Chief Event Marshall!",
+      name: "Medicinal Garden",
+      campusArea: "Campus Herbal & Medicinal Garden (Final Treasure Vault)",
+      locationHint: "My residents possess identities older than the institutions that study them, yet most pass unnoticed by those who cannot interpret their language. Their knowledge is neither written nor spoken, and their greatest secret is that the boundary between remedy and ordinary existence depends on the observer.",
       qrCodeToken: "QR_TOKEN_CP10_SINGULARITY_9Z0K",
       isFinalTreasure: true,
       question: {
