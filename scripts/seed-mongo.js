@@ -91,9 +91,9 @@ async function main() {
   const checkpointDefinitions = [
     {
       sequenceNumber: 1,
-      name: "The Cryptic Server Vault",
-      campusArea: "CS Department, Ground Floor Lab 1",
-      locationHint: "Where fans hum loudest and fiber cables sleep beneath the cold floor tiles.",
+      name: "Nadumuttam",
+      campusArea: "Central Courtyard (Nadumuttam)",
+      locationHint: "I am the architectural consequence of a decision to leave something unfinished, yet without me the whole would lose its identity. My boundaries are tangible, but my defining feature cannot be touched; look for the place whose most important component is the one no builder installed.",
       qrCodeToken: "QR_TOKEN_CP01_VAULT_7X4B",
       isFinalTreasure: false,
       question: {
@@ -107,9 +107,9 @@ async function main() {
     },
     {
       sequenceNumber: 2,
-      name: "The Silicon Junction",
-      campusArea: "Electronics Wing, 1st Floor Hallway",
-      locationHint: "Near the circuit diagram mural where resistance is definitely not futile.",
+      name: "College Store",
+      campusArea: "Student Co-operative Store",
+      locationHint: "My relevance expires without my existence becoming meaningless, and my value can decline while my contents remain unchanged. I facilitate an exchange in which the receiver may possess the means long before acquiring the ability, and the transaction is completed before its true outcome can be measured.",
       qrCodeToken: "QR_TOKEN_CP02_SILICON_3R9P",
       isFinalTreasure: false,
       question: {
@@ -123,9 +123,9 @@ async function main() {
     },
     {
       sequenceNumber: 3,
-      name: "The Algorithmic Archive",
-      campusArea: "Central Library, Digital Resource Wing",
-      locationHint: "Between the rows of Turing Award memoirs and bound journals from 1999.",
+      name: "Mech Lab",
+      campusArea: "Mechanical Engineering Lab Block",
+      locationHint: "I am a school in which matter is questioned until its behaviour confesses. My language has no alphabet, yet every answer can be measured; here, equilibrium is a temporary agreement, motion is evidence, and resistance is not an enemy but the subject under investigation.",
       qrCodeToken: "QR_TOKEN_CP03_ARCHIVE_9K2M",
       isFinalTreasure: false,
       question: {
@@ -139,9 +139,9 @@ async function main() {
     },
     {
       sequenceNumber: 4,
-      name: "The Robotics Sandbox",
-      campusArea: "Mechanical & Mechatronics Bay 3",
-      locationHint: "Behind the steel safety mesh where robotic arms calibrate their PID loops.",
+      name: "Main Gate",
+      campusArea: "Campus Main Entrance Gate",
+      locationHint: "I have a mouth but never eat, two arms but no hands, and I open without speaking. What am I?",
       qrCodeToken: "QR_TOKEN_CP04_ROBOTICS_5W1Q",
       isFinalTreasure: false,
       question: {
@@ -155,9 +155,9 @@ async function main() {
     },
     {
       sequenceNumber: 5,
-      name: "The Quantum Core",
-      campusArea: "Physics Research Annex, Basement",
-      locationHint: "Beneath the warning sign: 'Do not observe the cat unless instructed.'",
+      name: "Generator Room",
+      campusArea: "Power Substation & Generator Yard",
+      locationHint: "I become important when something whose presence is usually unquestioned suddenly disappears, and my greatest achievement is making an extraordinary failure appear almost ordinary. Who am I?",
       qrCodeToken: "QR_TOKEN_CP05_QUANTUM_8T6L",
       isFinalTreasure: false,
       question: {
@@ -171,9 +171,9 @@ async function main() {
     },
     {
       sequenceNumber: 6,
-      name: "The Neural Nexus",
-      campusArea: "AI & Innovation Incubator, 2nd Floor",
-      locationHint: "Where neural networks dream in tensor flow and weights converge to zero loss.",
+      name: "Fugeniz Kambi",
+      campusArea: "Fugeniz Fest Yard / Main Pillar (Kambi)",
+      locationHint: "I have a spine but no bones, stand tall but never walk, and wear rust without wearing clothes. What am I? (Hint: Fe2O3 · xH2O)",
       qrCodeToken: "QR_TOKEN_CP06_NEURAL_2V8Y",
       isFinalTreasure: false,
       question: {
@@ -187,9 +187,9 @@ async function main() {
     },
     {
       sequenceNumber: 7,
-      name: "The Cipher Gate",
-      campusArea: "Old Clock Tower Stairs, Landing B",
-      locationHint: "Look behind the bronze bell pendulum where shadow meets stone.",
+      name: "5th Floor MCB",
+      campusArea: "5th Floor Electrical Distribution Board (MCB)",
+      locationHint: "5 ↑ + FLOW − CONTINUITY = SAFETY\nThe number is not a quantity of guardians, and the interruption is not a mistake. Find the place reached after interpreting the number as a vertical instruction, where protection may require a system to stop.",
       qrCodeToken: "QR_TOKEN_CP07_CIPHER_4H7D",
       isFinalTreasure: false,
       question: {
@@ -203,25 +203,25 @@ async function main() {
     },
     {
       sequenceNumber: 8,
-      name: "The Vault of the Three Boxes (8-CP Final Treasure)",
-      campusArea: "Main Amphitheater Stage, Green Room Safe",
-      locationHint: "The final coordinate! Three locked treasure boxes guarded by the TechFest Marshal.",
+      name: "Central Library",
+      campusArea: "Campus Central Library",
+      locationHint: "I am a place where strangers whisper across centuries without ever meeting, where dead thinkers outlive their bodies, what place punishes the voice but rewards the curious, and holds more conversations when nobody speaks?",
       qrCodeToken: "QR_TOKEN_CP08_TREASURE_VAULT_1A9Z",
-      isFinalTreasure: true,
+      isFinalTreasure: false,
       question: {
-        prompt: "You have arrived at the Treasure Vault! Choose Box 1, Box 2, or Box 3 and present your claim code to the Marshal.",
-        type: "BOX_SELECTION",
-        options: JSON.stringify(["Box 1 (Titan Box)", "Box 2 (Cipher Box)", "Box 3 (Nova Box)"]),
-        correctAnswer: "TREASURE_CLAIM",
-        points: 500,
-        hint: "Select a box and obtain physical verification.",
+        prompt: "Which fundamental data structure operates strictly on a Last-In, First-Out (LIFO) order, where elements are both inserted (pushed) and removed (popped) exclusively from the top?",
+        type: "TEXT_CODE",
+        options: null,
+        correctAnswer: "STACK",
+        points: 100,
+        hint: "Think of push and pop operations, opposite of a FIFO Queue.",
       },
     },
     {
       sequenceNumber: 9,
-      name: "The Radio Telemetry Station",
-      campusArea: "Rooftop Observatory Tower",
-      locationHint: "Beneath the parabolic dish pointed toward geostationary coordinates.",
+      name: "Medicinal Garden",
+      campusArea: "Campus Herbal & Medicinal Garden",
+      locationHint: "My residents possess identities older than the institutions that study them, yet most pass unnoticed by those who cannot interpret their language. Their knowledge is neither written nor spoken, and their greatest secret is that the boundary between remedy and ordinary existence depends on the observer.",
       qrCodeToken: "QR_TOKEN_CP09_RADIO_6E3F",
       isFinalTreasure: false,
       question: {
@@ -235,9 +235,9 @@ async function main() {
     },
     {
       sequenceNumber: 10,
-      name: "The Grand Singularity (10-CP Final Treasure)",
-      campusArea: "Main Auditorium Grand Foyer",
-      locationHint: "The supreme 10-checkpoint culmination point guarding the three physical boxes.",
+      name: "Grand Final Treasure Vault",
+      campusArea: "Main Stage Vault / Auditorium",
+      locationHint: "🏆 GRAND FINAL TREASURE VAULT: The ultimate culmination point! Locate the buried/guarded treasure box coordinates and verify your physical victory with the Chief Event Marshall!",
       qrCodeToken: "QR_TOKEN_CP10_SINGULARITY_9Z0K",
       isFinalTreasure: true,
       question: {
