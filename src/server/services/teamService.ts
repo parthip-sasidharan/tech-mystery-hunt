@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { connectToDatabase } from "../db";
 import { Team, Registration, Route, Checkpoint, AuditLog, PrizeClaim, TeamProgress } from "../models";
 import { hashPassword } from "../auth";
@@ -725,16 +726,50 @@ export async function listRegistrations(status?: string) {
 export async function getTeamProfile(id: string) {
   await connectToDatabase();
 
-  const team = await Team.findById(id).lean();
+  let team = null;
+  if (mongoose.Types.ObjectId.isValid(id)) {
+    try {
+      team = await Team.findById(id).lean();
+    } catch {
+      team = null;
+    }
+  }
+  if (!team) {
+    try {
+      team = await Team.findOne({
+        $or: [
+          { teamId: id.toUpperCase() },
+          { _id: id }
+        ]
+      }).lean();
+    } catch {
+      team = null;
+    }
+  }
   if (!team) return null;
 
   let routeName = "Unassigned";
   if (team.routeId) {
-    const route = await Route.findOne({ _id: team.routeId }).lean();
-    if (route) {
-      routeName = route.name;
-    } else {
-      routeName = "Invalid Route";
+    try {
+      let route = null;
+      if (mongoose.Types.ObjectId.isValid(team.routeId)) {
+        route = await Route.findById(team.routeId).lean();
+      }
+      if (!route) {
+        route = await Route.findOne({
+          $or: [
+            { _id: team.routeId },
+            { name: team.routeId }
+          ]
+        }).lean();
+      }
+      if (route) {
+        routeName = route.name;
+      } else {
+        routeName = "Invalid Route";
+      }
+    } catch {
+      routeName = "Unassigned";
     }
   }
 

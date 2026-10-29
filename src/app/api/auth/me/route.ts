@@ -19,7 +19,9 @@ export async function GET() {
         }
       }
       if (!team) {
-        return NextResponse.json({ authenticated: false, user: null });
+        const unauthRes = NextResponse.json({ authenticated: false, user: null });
+        unauthRes.cookies.delete("techhunt_token");
+        return unauthRes;
       }
       return NextResponse.json({
         authenticated: true,
@@ -64,7 +66,9 @@ export async function GET() {
     }
 
     if (!user || !user.active) {
-      return NextResponse.json({ authenticated: false, user: null });
+      const unauthRes = NextResponse.json({ authenticated: false, user: null });
+      unauthRes.cookies.delete("techhunt_token");
+      return unauthRes;
     }
 
     return NextResponse.json({
