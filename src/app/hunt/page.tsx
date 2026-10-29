@@ -973,16 +973,25 @@ export default function HuntPage() {
               🚨 FAKE QR TRAP ACTIVATED!
             </div>
 
-            {/* Video Player */}
+            {/* Video or GIF Player */}
             <div className="relative rounded-xl overflow-hidden border border-amber-500/30 bg-black mb-4">
-              <video
-                src={fakeQrMeme.videoUrl}
-                autoPlay
-                loop
-                playsInline
-                controls
-                className="w-full max-h-64 object-contain mx-auto"
-              />
+              {fakeQrMeme.videoUrl.toLowerCase().endsWith(".gif") ? (
+                <img
+                  src={fakeQrMeme.videoUrl}
+                  alt={fakeQrMeme.title}
+                  className="w-full max-h-64 object-contain mx-auto"
+                />
+              ) : (
+                <video
+                  key={fakeQrMeme.videoUrl}
+                  src={fakeQrMeme.videoUrl}
+                  autoPlay
+                  loop
+                  playsInline
+                  controls
+                  className="w-full max-h-64 object-contain mx-auto"
+                />
+              )}
             </div>
 
             <h3 className="text-xl sm:text-2xl font-black text-amber-300 font-mono mb-1 leading-snug">

@@ -363,40 +363,129 @@ export async function validateCheckpointQr(teamId: string, qrToken: string) {
         id: "aarattu",
         title: "പണി പാളി മോനേ! ഇത് ഫേക്ക് QR ആണ്! 😂",
         subtitle: "ആറാട്ടണ്ണൻ മോഡ് ഓൺ! ഒറിജിനൽ QR ഇതിനടുത്ത് തന്നെയുണ്ട്, ഒന്നുകൂടി തപ്പൂ!",
-        videoUrl: "/memes/meme-aarattu-annan.mp4",
+        videoUrl: "/memes/aarattu-annan-police-mallu-meme.mp4",
       },
       {
         id: "bethlehem",
         title: "ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ് ട്രോൾ! 🎭",
         subtitle: "അയ്യോ പെട്ടു! ഇത് ഫേക്ക് QR ആണ്, ഒറിജിനൽ QR തപ്പൂ!",
-        videoUrl: "/memes/meme-bethlehem.mp4",
+        videoUrl: "/memes/bethlehem-kudumba-unit-comedy.mp4",
       },
       {
         id: "sreenivasan",
         title: "ശ്രീനിവാസൻ ഡാൻസ് ലോഡിങ്... 💃",
         subtitle: "ഫേക്ക് QR-ൽ കയറി പെട്ട ടീം! ഒറിജിനൽ QR അടുത്തുണ്ട്!",
-        videoUrl: "/memes/meme-dance-sreenivasan.mp4",
+        videoUrl: "/memes/dance-sreenivasan.mp4",
       },
       {
         id: "dasa",
         title: "എല്ലാത്തിനും അതിന്റേതായ സമയമുണ്ട് ദാസാ! ⏳",
         subtitle: "ഇത് ഫേക്ക് ആണ്! ഒറിജിനൽ കണ്ടെത്താൻ കുറച്ചുകൂടി ശ്രദ്ധിക്കൂ!",
-        videoUrl: "/memes/meme-ellathinum-samayamundu.mp4",
+        videoUrl: "/memes/ellathinum-athintedaya-samaymundu-dasaa-mohanlal.mp4",
       },
       {
         id: "dileep",
-        title: "കോമഡി ട്രാപ്പ്! 🤣",
+        title: "ദിലീപ് കോമഡി ട്രാപ്പ്! 🤣",
         subtitle: "കൺഗ്രാജുലേഷൻസ്... നിങ്ങൾ ഒരു ഫേക്ക് QR കണ്ടെത്തിയിരിക്കുന്നു!",
-        videoUrl: "/memes/meme-funny-dileep.mp4",
+        videoUrl: "/memes/funny-dileep.mp4",
+      },
+      {
+        id: "kalaranjini_konjanam",
+        title: "കലാരഞ്ജിനി കൊഞ്ഞനം കുത്തൽ! 😜",
+        subtitle: "പണി പാളി! ഇങ്ങനെയൊക്കെ പറ്റിക്കാമോ സൂർത്തേ?!",
+        videoUrl: "/memes/kalaranjini-konjanam-kuthal.mp4",
+      },
+      {
+        id: "kalaranjini_smile",
+        title: "കലാരഞ്ജിനി കട്ട സ്മൈൽ! 😏",
+        subtitle: "അങ്ങനെ ഇപ്പൊ നീ ചെക്ക്പോയിന്റ് കണ്ടുപിടിക്കണ്ട!",
+        videoUrl: "/memes/kalaranjini-smile.mp4",
+      },
+      {
+        id: "kalyanaraman",
+        title: "കല്യാണരാമൻ ട്രോൾ പണി! 🍛",
+        subtitle: "അങ്ങനെ അതൊരു തീരുമാനമായി! ഒറിജിനൽ QR വേറെ എവിടെയോ ഉണ്ട്!",
+        videoUrl: "/memes/kalyanaraman-malayalam-meme.mp4",
+      },
+      {
+        id: "suresh_krishna",
+        title: "സുരേഷ് കൃഷ്ണ ചിരി! 😂",
+        subtitle: "ഹാ ഹാ ഹാ... കുടുങ്ങി മോനേ കുടുങ്ങി!",
+        videoUrl: "/memes/laughing-suresh-krishna.mp4",
+      },
+      {
+        id: "mamangam_1",
+        title: "മാമാങ്കം ട്രോൾ! ⚔️",
+        subtitle: "ചതി... ചതി മാത്രം! ഇത് ഫേക്ക് ക്യുആർ ആണ് മക്കളേ!",
+        videoUrl: "/memes/mamangam-mammootty.mp4",
+      },
+      {
+        id: "mamangam_2",
+        title: "മമ്മൂക്ക മാമാങ്കം എപ്പിക് മൂവ്! 🎭",
+        subtitle: "പെട്ടെന്ന് അടുത്ത ചെക്ക്പോയിന്റ് തപ്പാൻ നോക്ക്!",
+        videoUrl: "/memes/mammootty-mamangam.mp4",
+      },
+      {
+        id: "nivin",
+        title: "നിവിൻ പോളി കോമഡി ഭാവം! 😅",
+        subtitle: "ഇത് കണ്ട് കരയണോ ചിരിക്കണോ എന്നറിയാത്ത അവസ്ഥ!",
+        videoUrl: "/memes/nivin-malayalam.mp4",
+      },
+      {
+        id: "prank_1",
+        title: "ക്യാമ്പസ് പ്രാങ്ക് ട്രാപ്പ് #1! 🚨",
+        subtitle: "നിങ്ങൾ പെർഫെക്ട് ആയി പറ്റിക്കപ്പെട്ടിരിക്കുന്നു!",
+        videoUrl: "/memes/prank-video-1.mp4",
+      },
+      {
+        id: "prank_2",
+        title: "ക്യാമ്പസ് പ്രാങ്ക് ട്രാപ്പ് #2! ⚡",
+        subtitle: "ഇവിടെ നോക്കണ്ട, ഒറിജിനൽ QR വേറെ എവിടെയോ ഒളിച്ചിരിപ്പുണ്ട്!",
+        videoUrl: "/memes/prank-video-2.mp4",
+      },
+      {
+        id: "saiju",
+        title: "സൈജു കുറുപ്പ്: 'ഒന്നുമില്ല!' 🤷‍♂️",
+        subtitle: "ഇവിടെ ചെക്ക്പോയിന്റും ഇല്ല ഒരു തേങ്ങയുമില്ല!",
+        videoUrl: "/memes/saiju-kurup-onnumilla.mp4",
+      },
+      {
+        id: "karikku",
+        title: "കരിക്ക് കോമഡി സ്മൈൽ! 😄",
+        subtitle: "എന്താ മോനേ നോക്കുന്നെ? ഒറിജിനൽ QR പോയി തപ്പ്!",
+        videoUrl: "/memes/smile-karikku.mp4",
+      },
+      {
+        id: "baby_jean",
+        title: "ദാറ്റ്സ് ദി സ്പിരിറ്റ് ബേബി ജീൻ! 🔥",
+        subtitle: "തോറ്റോടാൻ ഞങ്ങൾ തയ്യാറല്ല! ഒറിജിനൽ QR കണ്ടുപിടിക്കൂ!",
+        videoUrl: "/memes/that's-the-spirit-baby-jean.mp4",
+      },
+      {
+        id: "tom_jerry",
+        title: "ടോം ആൻഡ് ജെറി ഓട്ടം! 🐭🐱",
+        subtitle: "ഇങ്ങനെ ഓടിയാൽ ഒടുക്കം ട്രാപ്പിൽ തന്നെ ചാടും!",
+        videoUrl: "/memes/tom-and-jerry.mp4",
+      },
+      {
+        id: "prank_gif",
+        title: "പ്രാങ്ക് ജിഫ് ട്രാപ്പ്! 👻",
+        subtitle: "സൂക്ഷിച്ച് നോക്കണ്ട... ഇത് ഫേക്ക് QR തന്നെയാണ്!",
+        videoUrl: "/memes/prank-gif-1.gif",
       },
     ];
 
     let selectedMeme = memeList[Math.floor(Math.random() * memeList.length)];
-    if (upperToken.includes("1") || upperToken.includes("AARATTU")) selectedMeme = memeList[0];
-    else if (upperToken.includes("2") || upperToken.includes("BETHLEHEM")) selectedMeme = memeList[1];
-    else if (upperToken.includes("3") || upperToken.includes("DANCE") || upperToken.includes("SREENI")) selectedMeme = memeList[2];
-    else if (upperToken.includes("4") || upperToken.includes("DASA") || upperToken.includes("SAMAYAM")) selectedMeme = memeList[3];
-    else if (upperToken.includes("5") || upperToken.includes("DILEEP")) selectedMeme = memeList[4];
+    const numMatch = upperToken.match(/(?:FAKE|DECOY)[_-]?0*([0-9]+)/);
+    if (numMatch) {
+      const idx = parseInt(numMatch[1], 10) - 1;
+      if (idx >= 0 && idx < memeList.length) {
+        selectedMeme = memeList[idx];
+      }
+    } else {
+      const found = memeList.find((m) => upperToken.includes(m.id.toUpperCase()));
+      if (found) selectedMeme = found;
+    }
 
     await AuditLog.create({
       action: "QR_FAKE_DECOY_TRIGGERED",

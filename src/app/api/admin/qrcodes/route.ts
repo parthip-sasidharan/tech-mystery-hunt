@@ -43,6 +43,20 @@ export async function GET() {
       { token: "QR_FAKE_03", label: "Fake Decoy QR #3", meme: "Dance Sreenivasan" },
       { token: "QR_FAKE_04", label: "Fake Decoy QR #4", meme: "Ellathinum Samayamundu Dasaa" },
       { token: "QR_FAKE_05", label: "Fake Decoy QR #5", meme: "Funny Dileep Comedy" },
+      { token: "QR_FAKE_06", label: "Fake Decoy QR #6", meme: "Kalaranjini Konjanam Kuthal" },
+      { token: "QR_FAKE_07", label: "Fake Decoy QR #7", meme: "Kalaranjini Smile Troll" },
+      { token: "QR_FAKE_08", label: "Fake Decoy QR #8", meme: "Kalyanaraman Comedy" },
+      { token: "QR_FAKE_09", label: "Fake Decoy QR #9", meme: "Laughing Suresh Krishna" },
+      { token: "QR_FAKE_10", label: "Fake Decoy QR #10", meme: "Mammootty Mamangam Trap" },
+      { token: "QR_FAKE_11", label: "Fake Decoy QR #11", meme: "Mammootty Mamangam Epic" },
+      { token: "QR_FAKE_12", label: "Fake Decoy QR #12", meme: "Nivin Pauly Meme" },
+      { token: "QR_FAKE_13", label: "Fake Decoy QR #13", meme: "Campus Prank Video 1" },
+      { token: "QR_FAKE_14", label: "Fake Decoy QR #14", meme: "Campus Prank Video 2" },
+      { token: "QR_FAKE_15", label: "Fake Decoy QR #15", meme: "Saiju Kurup Onnumilla" },
+      { token: "QR_FAKE_16", label: "Fake Decoy QR #16", meme: "Karikku Smile" },
+      { token: "QR_FAKE_17", label: "Fake Decoy QR #17", meme: "Baby Jean That's The Spirit" },
+      { token: "QR_FAKE_18", label: "Fake Decoy QR #18", meme: "Tom and Jerry Chase" },
+      { token: "QR_FAKE_19", label: "Fake Decoy QR #19", meme: "Prank GIF Animation" },
     ];
 
     const fakeQrs = await Promise.all(
