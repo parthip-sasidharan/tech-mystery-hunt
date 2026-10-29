@@ -129,7 +129,7 @@ interface AdminCheckpointItem {
     id: string;
     prompt: string;
     type: string;
-    options: string[];
+    options?: string[] | null;
     points: number;
     hint: string | null;
     hasAnswerSet: boolean;
@@ -373,7 +373,7 @@ export default function AdminPage() {
   const [cpFormIsFinal, setCpFormIsFinal] = useState(false);
   const [cpFormPrompt, setCpFormPrompt] = useState("");
   const [cpFormType, setCpFormType] = useState<"MULTIPLE_CHOICE" | "NUMERIC" | "TEXT" | "CODE_CIPHER">("MULTIPLE_CHOICE");
-  const [cpFormOptions, setCpFormOptions] = useState("Alpha, Beta, Gamma, Delta");
+  const [cpFormOptions, setCpFormOptions] = useState("");
   const [cpFormAnswer, setCpFormAnswer] = useState("");
   const [cpFormQuestionHint, setCpFormQuestionHint] = useState("");
   const [cpFormPoints, setCpFormPoints] = useState(100);
@@ -880,8 +880,16 @@ export default function AdminPage() {
     setCpSubmitting(true);
     try {
       const opts = cpFormType === "MULTIPLE_CHOICE"
-        ? cpFormOptions.split(",").map((s) => s.trim()).filter(Boolean)
+        ? cpFormOptions.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean)
         : null;
+
+      if (cpFormType === "MULTIPLE_CHOICE" && (!opts || opts.length < 2)) {
+        throw new Error("Please enter at least 2 options for Multiple Choice question.");
+      }
+
+      if (cpFormType === "MULTIPLE_CHOICE" && !cpFormAnswer.trim()) {
+        throw new Error("Please select or enter the Accepted Answer for Multiple Choice.");
+      }
 
       const payload = {
         name: cpFormName.trim(),
@@ -915,6 +923,7 @@ export default function AdminPage() {
       setCpFormHint("");
       setCpFormIsFinal(false);
       setCpFormPrompt("");
+      setCpFormOptions("");
       setCpFormAnswer("");
       setCpFormQuestionHint("");
       fetchCheckpoints();
@@ -933,8 +942,20 @@ export default function AdminPage() {
     setCpSubmitting(true);
     try {
       const opts = cpFormType === "MULTIPLE_CHOICE"
-        ? cpFormOptions.split(",").map((s) => s.trim()).filter(Boolean)
+        ? cpFormOptions.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean)
         : null;
+
+      if (cpFormType === "MULTIPLE_CHOICE" && (!opts || opts.length < 2)) {
+        throw new Error("Please enter at least 2 options for Multiple Choice question.");
+      }
+
+      if (
+        cpFormType === "MULTIPLE_CHOICE" &&
+        !cpFormAnswer.trim() &&
+        !editingCheckpoint.question?.hasAnswerSet
+      ) {
+        throw new Error("Please select or enter which option is the Accepted Answer.");
+      }
 
       const payload: any = {
         name: cpFormName.trim(),
@@ -2494,12 +2515,25 @@ URL: ${window.location.origin}/login`;
                             onClick={() => {
                               setEditingCheckpoint(cp);
                               setCpFormName(cp.name);
-                              setCpFormArea(cp.campusArea);
+                              setCpFormArea(cp.campusArea || cp.name);
                               setCpFormHint(cp.locationHint);
                               setCpFormIsFinal(cp.isFinalTreasure);
                               setCpFormPrompt(cp.question?.prompt || "");
-                              setCpFormType((cp.question?.type as any) || "MULTIPLE_CHOICE");
-                              setCpFormOptions(cp.question?.options?.join(", ") || "");
+                              const rawType = cp.question?.type;
+                              const initialType: "MULTIPLE_CHOICE" | "NUMERIC" | "TEXT" | "CODE_CIPHER" =
+                                rawType === "MULTIPLE_CHOICE" || (Array.isArray(cp.question?.options) && cp.question.options.length > 0)
+                                  ? "MULTIPLE_CHOICE"
+                                  : rawType === "NUMERIC"
+                                  ? "NUMERIC"
+                                  : rawType === "CODE_CIPHER"
+                                  ? "CODE_CIPHER"
+                                  : "TEXT";
+                              setCpFormType(initialType);
+                              setCpFormOptions(
+                                Array.isArray(cp.question?.options) && cp.question.options.length > 0
+                                  ? cp.question.options.join(", ")
+                                  : ""
+                              );
                               setCpFormAnswer("");
                               setCpFormQuestionHint(cp.question?.hint || "");
                               setCpFormPoints(cp.question?.points || 100);
@@ -3644,36 +3678,74 @@ URL: ${window.location.origin}/login`;
                 </div>
 
                 {cpFormType === "MULTIPLE_CHOICE" && (
-                  <div>
-                    <label className="block text-xs font-medium text-slate-300 mb-1">
-                      Options (Comma-separated)
+                  <div className="space-y-2 p-3 rounded-lg bg-cyan-950/20 border border-cyan-500/20">
+                    <label className="block text-xs font-semibold text-cyan-300">
+                      Options (Comma-separated or one per line) *
                     </label>
-                    <input
-                      type="text"
-                      placeholder="Choice 1, Choice 2, Choice 3, Choice 4"
+                    <textarea
+                      rows={2}
+                      placeholder="e.g. Option A, Option B, Option C, Option D"
                       value={cpFormOptions}
                       onChange={(e) => setCpFormOptions(e.target.value)}
                       className="w-full px-3 py-2 rounded-lg bg-surface-50 border border-surface-border text-white text-xs"
                     />
+                    {cpFormOptions.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean).length > 0 && (
+                      <div className="pt-1">
+                        <div className="text-[11px] text-slate-400 mb-1.5 flex items-center gap-1 font-mono">
+                          <span>👆 Click an option to set as Accepted Answer:</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {cpFormOptions.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean).map((opt, i) => {
+                            const isSelected =
+                              cpFormAnswer.trim().toUpperCase() === opt.toUpperCase() ||
+                              cpFormAnswer.trim().toUpperCase() === String.fromCharCode(65 + i);
+                            return (
+                              <button
+                                key={i}
+                                type="button"
+                                onClick={() => setCpFormAnswer(opt)}
+                                className={`px-2.5 py-1 rounded-md text-xs font-mono transition-all flex items-center gap-1.5 ${
+                                  isSelected
+                                    ? "bg-cyan-500 text-black font-bold shadow-glow-cyan"
+                                    : "bg-surface-100 text-slate-200 hover:text-white hover:bg-surface-50 border border-surface-border"
+                                }`}
+                              >
+                                <span className={isSelected ? "text-black font-bold" : "text-cyan-400 font-bold"}>
+                                  {String.fromCharCode(65 + i)}.
+                                </span>
+                                <span>{opt}</span>
+                                {isSelected && <span className="font-bold">✓</span>}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
                 <div>
                   <label className="block text-xs font-medium text-slate-300 mb-1">
                     {editingCheckpoint
-                      ? "New Accepted Answer (Leave blank to keep existing bcrypt hash)"
-                      : "Accepted Answer (Hashed with bcrypt upon saving) *"}
+                      ? "New Accepted Answer (Leave blank to keep existing, or click an option above)"
+                      : "Accepted Answer *"}
                   </label>
                   <input
                     type="text"
-                    required={!editingCheckpoint}
-                    placeholder="Correct answer string"
+                    required={!editingCheckpoint && cpFormType !== "MULTIPLE_CHOICE"}
+                    placeholder={
+                      cpFormType === "MULTIPLE_CHOICE"
+                        ? "Click an option above or type exact correct choice"
+                        : "Correct answer string (e.g. KOHLER or DR SANDHYA R)"
+                    }
                     value={cpFormAnswer}
                     onChange={(e) => setCpFormAnswer(e.target.value)}
                     className="w-full px-3 py-2 rounded-lg bg-surface-50 border border-surface-border text-white text-xs font-mono uppercase"
                   />
                   <p className="text-[11px] text-slate-500 mt-1">
-                    Answers are securely hashed with bcrypt cost factor 10. The plaintext is never stored or returned in APIs.
+                    {cpFormType === "MULTIPLE_CHOICE"
+                      ? "Teams can tap the option button on their phone or submit the exact answer."
+                      : "Case-insensitive and resilient to punctuation/spaces. Pipe variants supported (e.g. DR SANDHYA R|SANDHYA R)."}
                   </p>
                 </div>
 
@@ -3762,11 +3834,12 @@ URL: ${window.location.origin}/login`;
                   <div className="text-slate-400 text-[10px] uppercase">Riddle Puzzle (After Scan)</div>
                   <div className="text-white font-semibold">{previewingCheckpoint.question.prompt}</div>
 
-                  {previewingCheckpoint.question.options.length > 0 && (
+                  {Boolean(previewingCheckpoint.question.options && previewingCheckpoint.question.options.length > 0) && (
                     <div className="space-y-1 pt-1">
-                      {previewingCheckpoint.question.options.map((opt, i) => (
-                        <div key={i} className="p-1.5 rounded bg-surface-100 text-slate-300 text-[11px]">
-                          {opt}
+                      {previewingCheckpoint.question.options!.map((opt, i) => (
+                        <div key={i} className="p-1.5 rounded bg-surface-100 text-slate-300 text-[11px] font-mono flex items-center gap-2">
+                          <span className="text-cyan-400 font-bold">{String.fromCharCode(65 + i)}.</span>
+                          <span>{opt}</span>
                         </div>
                       ))}
                     </div>

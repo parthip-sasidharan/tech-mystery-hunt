@@ -7,7 +7,7 @@ import crypto from "crypto";
 
 export interface CheckpointQuestionInput {
   prompt: string;
-  type?: "MULTIPLE_CHOICE" | "NUMERIC" | "TEXT" | "CODE_CIPHER";
+  type?: "MULTIPLE_CHOICE" | "NUMERIC" | "TEXT" | "CODE_CIPHER" | "TEXT_CODE" | "BOX_SELECTION";
   options?: string[] | null;
   acceptedAnswer: string;
   points?: number;
@@ -20,6 +20,7 @@ export interface CreateCheckpointInput {
   locationHint: string;
   isFinalTreasure?: boolean;
   treasureBoxNumber?: number | null;
+  penaltyTask?: string | null;
   question: CheckpointQuestionInput;
 }
 
@@ -136,14 +137,23 @@ export async function createCheckpoint(input: CreateCheckpointInput, adminId: st
 
   const cpId = String(checkpoint._id);
 
-  // Hash accepted answer with bcrypt
-  const answerHash = await bcrypt.hash(input.question.acceptedAnswer.trim().toUpperCase(), 10);
+  // Save penalty task if provided
+  if (input.penaltyTask && input.penaltyTask.trim().length > 0) {
+    await GameConfig.updateOne(
+      { key: `PENALTY_TASK_CP_${nextSeq}` },
+      { $set: { value: input.penaltyTask.trim(), updatedAt: new Date() } },
+      { upsert: true }
+    );
+  }
+
+  // Store accepted answer (supports exact string, resilient matching, and pipe-separated variants)
+  const answerHash = input.question.acceptedAnswer.trim().toUpperCase();
 
   const question = await Question.create({
     checkpointId: cpId,
     prompt: input.question.prompt.trim(),
-    type: input.question.type || "MULTIPLE_CHOICE",
-    options: input.question.options ? JSON.stringify(input.question.options) : null,
+    type: input.question.type === "TEXT_CODE" ? "TEXT" : (input.question.type || "MULTIPLE_CHOICE"),
+    options: input.question.options && input.question.options.length > 0 ? JSON.stringify(input.question.options) : null,
     correctAnswerHash: answerHash,
     points: input.question.points || 100,
     hint: input.question.hint?.trim() || null,
@@ -246,18 +256,20 @@ export async function updateCheckpoint(
     }
 
     if (input.question.prompt !== undefined) question.prompt = input.question.prompt.trim();
-    if (input.question.type !== undefined) question.type = input.question.type;
+    if (input.question.type !== undefined) {
+      question.type = input.question.type === "TEXT_CODE" ? "TEXT" : input.question.type;
+    }
     if (input.question.options !== undefined) {
-      question.options = input.question.options ? JSON.stringify(input.question.options) : null;
+      question.options =
+        Array.isArray(input.question.options) && input.question.options.length > 0
+          ? JSON.stringify(input.question.options)
+          : null;
     }
     if (input.question.points !== undefined) question.points = input.question.points;
     if (input.question.hint !== undefined) question.hint = input.question.hint?.trim() || null;
 
     if (input.question.acceptedAnswer && input.question.acceptedAnswer.trim().length > 0) {
-      question.correctAnswerHash = await bcrypt.hash(
-        input.question.acceptedAnswer.trim().toUpperCase(),
-        10
-      );
+      question.correctAnswerHash = input.question.acceptedAnswer.trim().toUpperCase();
     }
 
     await question.save();

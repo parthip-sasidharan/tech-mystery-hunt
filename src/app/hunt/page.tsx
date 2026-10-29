@@ -957,7 +957,7 @@ export default function HuntPage() {
                     )}
 
                     {/* Question Input Form */}
-                    {checkpoint.question.options ? (
+                    {checkpoint.question.options && checkpoint.question.options.length > 0 ? (
                       /* Multiple Choice */
                       <div className="space-y-2.5">
                         <label className="block text-xs font-medium text-slate-400">

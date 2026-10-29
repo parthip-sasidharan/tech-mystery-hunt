@@ -139,34 +139,35 @@ export const CreateVolunteerSchema = z.object({
 export const CreateCheckpointSchema = z.object({
   name:              trimmedString(2, 80, "Checkpoint name"),
   campusArea:        trimmedString(1, 120, "Campus area").optional(),
-  locationHint:      trimmedString(2, 250, "Location hint / Clue"),
+  locationHint:      trimmedString(2, 2000, "Location hint / Clue"),
   isFinalTreasure:   z.boolean().optional().default(false),
   treasureBoxNumber: z.number().int().min(1).max(3).optional().nullable(),
+  penaltyTask:       z.string().trim().max(1000).optional().nullable(),
   question: z.object({
-    prompt:         trimmedString(4, 500, "Question prompt"),
-    type:           z.enum(["MULTIPLE_CHOICE", "NUMERIC", "TEXT", "CODE_CIPHER"]).default("MULTIPLE_CHOICE"),
+    prompt:         trimmedString(4, 2000, "Question prompt"),
+    type:           z.enum(["MULTIPLE_CHOICE", "NUMERIC", "TEXT", "CODE_CIPHER", "TEXT_CODE", "BOX_SELECTION"]).default("MULTIPLE_CHOICE"),
     options:        z.array(z.string().trim().min(1)).optional().nullable(),
-    acceptedAnswer: trimmedString(1, 100, "Accepted answer"),
+    acceptedAnswer: trimmedString(1, 500, "Accepted answer"),
     points:         z.number().int().min(0).max(500).optional().default(100),
-    hint:           z.string().trim().max(300).optional().nullable(),
+    hint:           z.string().trim().max(500).optional().nullable(),
   }),
 });
 
 export const UpdateCheckpointSchema = z.object({
   name:              trimmedString(2, 80, "Checkpoint name").optional(),
   campusArea:        trimmedString(1, 120, "Campus area").optional(),
-  locationHint:      trimmedString(2, 250, "Location hint / Clue").optional(),
+  locationHint:      trimmedString(2, 2000, "Location hint / Clue").optional(),
   isFinalTreasure:   z.boolean().optional(),
   treasureBoxNumber: z.number().int().min(1).max(3).optional().nullable(),
   active:            z.boolean().optional(),
-  penaltyTask:       z.string().trim().max(500).optional().nullable(),
+  penaltyTask:       z.string().trim().max(1000).optional().nullable(),
   question: z.object({
-    prompt:         trimmedString(4, 500, "Question prompt").optional(),
-    type:           z.enum(["MULTIPLE_CHOICE", "NUMERIC", "TEXT", "CODE_CIPHER"]).optional(),
+    prompt:         trimmedString(4, 2000, "Question prompt").optional(),
+    type:           z.enum(["MULTIPLE_CHOICE", "NUMERIC", "TEXT", "CODE_CIPHER", "TEXT_CODE", "BOX_SELECTION"]).optional(),
     options:        z.array(z.string().trim().min(1)).optional().nullable(),
-    acceptedAnswer: z.string().trim().min(1).max(100).optional(),
+    acceptedAnswer: z.string().trim().min(1).max(500).optional(),
     points:         z.number().int().min(0).max(500).optional(),
-    hint:           z.string().trim().max(300).optional().nullable(),
+    hint:           z.string().trim().max(500).optional().nullable(),
   }).optional(),
 });
 

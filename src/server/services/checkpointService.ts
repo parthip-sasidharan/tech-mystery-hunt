@@ -604,6 +604,77 @@ export async function submitCheckpointAnswer(teamId: string, answer: string) {
         }
       }
     }
+
+    // 3. Multiple Choice options resilient matching
+    if (!isCorrect && question.options) {
+      try {
+        const opts: string[] = typeof question.options === "string"
+          ? JSON.parse(question.options)
+          : question.options;
+
+        if (Array.isArray(opts) && opts.length > 0) {
+          const cleanInput = normalizedAnswer
+            .replace(/[.,\-_/\\()]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+          const strippedInput = normalizedAnswer.replace(/[^A-Z0-9\u0D00-\u0D7F]/g, "");
+
+          // Target answer variants from question.correctAnswerHash
+          const targetAnswer = (question.correctAnswerHash || "").trim().toUpperCase();
+          const targetVariants = targetAnswer.split("|").map((v) => v.trim().toUpperCase()).filter(Boolean);
+
+          const correctIndices: number[] = [];
+          opts.forEach((optText, idx) => {
+            const letter = String.fromCharCode(65 + idx); // "A", "B", ...
+            const num = String(idx + 1); // "1", "2", ...
+            const upperOpt = optText.trim().toUpperCase();
+            const cleanOpt = upperOpt.replace(/[.,\-_/\\()]/g, " ").replace(/\s+/g, " ").trim();
+            const strippedOpt = upperOpt.replace(/[^A-Z0-9\u0D00-\u0D7F]/g, "");
+
+            for (const tv of targetVariants) {
+              const cleanTv = tv.replace(/[.,\-_/\\()]/g, " ").replace(/\s+/g, " ").trim();
+              const strippedTv = tv.replace(/[^A-Z0-9\u0D00-\u0D7F]/g, "");
+
+              if (
+                tv === letter ||
+                tv === num ||
+                tv === upperOpt ||
+                (cleanTv && cleanTv === cleanOpt) ||
+                (strippedTv && strippedOpt && strippedTv === strippedOpt)
+              ) {
+                correctIndices.push(idx);
+                break;
+              }
+            }
+          });
+
+          // Check if team submitted answer matches any correct option
+          for (const cIdx of correctIndices) {
+            const correctOptText = opts[cIdx].trim().toUpperCase();
+            const correctLetter = String.fromCharCode(65 + cIdx);
+            const correctNum = String(cIdx + 1);
+            const cleanCorrectOpt = correctOptText.replace(/[.,\-_/\\()]/g, " ").replace(/\s+/g, " ").trim();
+            const strippedCorrectOpt = correctOptText.replace(/[^A-Z0-9\u0D00-\u0D7F]/g, "");
+
+            if (
+              normalizedAnswer === correctLetter ||
+              normalizedAnswer === correctNum ||
+              normalizedAnswer === correctOptText ||
+              normalizedAnswer === `OPTION ${correctLetter}` ||
+              normalizedAnswer.startsWith(`${correctLetter}.`) ||
+              normalizedAnswer.startsWith(`${correctLetter})`) ||
+              (cleanInput && cleanInput === cleanCorrectOpt) ||
+              (strippedInput && strippedCorrectOpt && strippedInput === strippedCorrectOpt)
+            ) {
+              isCorrect = true;
+              break;
+            }
+          }
+        }
+      } catch {
+        // Fallback silently if options parsing fails
+      }
+    }
   }
 
   const updatedAttempts = (progress.attemptsCount || 0) + 1;
