@@ -556,9 +556,53 @@ export async function submitCheckpointAnswer(teamId: string, answer: string) {
   if (checkpoint.isFinalTreasure) {
     isCorrect = true;
   } else {
-    isCorrect = await bcrypt.compare(normalizedAnswer, question.correctAnswerHash);
-    if (!isCorrect && question.correctAnswerHash === normalizedAnswer) {
-      isCorrect = true;
+    // 1. Check bcrypt hash if stored hash matches bcrypt signature ($2a$, $2b$, $2y$)
+    if (
+      question.correctAnswerHash.startsWith("$2a$") ||
+      question.correctAnswerHash.startsWith("$2b$") ||
+      question.correctAnswerHash.startsWith("$2y$")
+    ) {
+      try {
+        isCorrect = await bcrypt.compare(normalizedAnswer, question.correctAnswerHash);
+      } catch {
+        isCorrect = false;
+      }
+    }
+
+    // 2. Resilient plaintext and variant matching (handles pipe-separated answers, punctuation & spacing differences)
+    if (!isCorrect) {
+      const cleanInput = normalizedAnswer
+        .replace(/[.,\-_/\\()]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      const strippedInput = normalizedAnswer.replace(/[^A-Z0-9\u0D00-\u0D7F]/g, "");
+
+      const variants = question.correctAnswerHash
+        .split("|")
+        .map((v) => v.trim().toUpperCase())
+        .filter(Boolean);
+
+      for (const variant of variants) {
+        if (normalizedAnswer === variant) {
+          isCorrect = true;
+          break;
+        }
+
+        const cleanVariant = variant
+          .replace(/[.,\-_/\\()]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+        if (cleanInput === cleanVariant) {
+          isCorrect = true;
+          break;
+        }
+
+        const strippedVariant = variant.replace(/[^A-Z0-9\u0D00-\u0D7F]/g, "");
+        if (strippedInput && strippedVariant && strippedInput === strippedVariant) {
+          isCorrect = true;
+          break;
+        }
+      }
     }
   }
 

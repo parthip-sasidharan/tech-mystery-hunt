@@ -97,12 +97,12 @@ async function main() {
       qrCodeToken: "QR_TOKEN_CP01_VAULT_7X4B",
       isFinalTreasure: false,
       question: {
-        prompt: "Intercepted Binary Transmission from the Server Vault: [ 01001000  01000001  01000011  01001011 ]. Decode each 8-bit ASCII binary octet to reveal the 4-letter secret authorization keyword.",
+        prompt: "WHO IS HOD OF DEPT OF COMPUTER APPLICATIONS?",
         type: "TEXT_CODE",
         options: null,
-        correctAnswer: "HACK",
+        correctAnswer: "DR SANDHYA R|DR. SANDHYA R|DR SANDHYA|SANDHYA R|SANDHYA",
         points: 100,
-        hint: "Convert binary octets to ASCII characters.",
+        hint: "HOD, Dept of Computer Applications (MCA).",
       },
     },
     {
@@ -113,12 +113,12 @@ async function main() {
       qrCodeToken: "QR_TOKEN_CP02_SILICON_3R9P",
       isFinalTreasure: false,
       question: {
-        prompt: "Which fundamental digital logic gate outputs HIGH (1) if and only if its two input bits are completely distinct (one input is 0 and the other input is 1)?",
-        type: "MULTIPLE_CHOICE",
-        options: JSON.stringify(["AND", "OR", "XOR", "NAND"]),
-        correctAnswer: "XOR",
+        prompt: "WHICH BRAND GENERATOR IS USED IN SNGCE?",
+        type: "TEXT_CODE",
+        options: null,
+        correctAnswer: "KOHLER",
         points: 100,
-        hint: "Exclusive choice.",
+        hint: "Check the generator manufacturer / brand plate.",
       },
     },
     {
@@ -129,12 +129,12 @@ async function main() {
       qrCodeToken: "QR_TOKEN_CP03_ARCHIVE_9K2M",
       isFinalTreasure: false,
       question: {
-        prompt: "What is the worst-case time complexity of the standard QuickSort algorithm when a naive pivot (such as always choosing the first or last element) is selected on an already-sorted array of n elements?",
-        type: "MULTIPLE_CHOICE",
-        options: JSON.stringify(["O(n)", "O(n log n)", "O(n^2)", "O(2^n)"]),
-        correctAnswer: "O(n^2)",
+        prompt: "NUMBER OF PLACEMENTS IN 2025-2026 PLACEMENT POSTER?",
+        type: "NUMERIC",
+        options: null,
+        correctAnswer: "121",
         points: 100,
-        hint: "Quadratic degradation on already-sorted arrays.",
+        hint: "Refer to the official 2025-2026 campus placement poster milestone.",
       },
     },
     {
@@ -145,12 +145,12 @@ async function main() {
       qrCodeToken: "QR_TOKEN_CP04_ROBOTICS_5W1Q",
       isFinalTreasure: false,
       question: {
-        prompt: "A precision robotic arm is powered by a bipolar stepper motor with a step angle of 1.8° per pulse. How many full electrical step pulses are required for the motor shaft to complete one full 360° rotation?",
-        type: "NUMERIC",
+        prompt: "NAME OF THE BIGGEST MISSILE IN MAIN ENTRANCE?",
+        type: "TEXT_CODE",
         options: null,
-        correctAnswer: "200",
+        correctAnswer: "BRAHMOS|BRAHMOS MISSILE",
         points: 100,
-        hint: "Divide 360 by 1.8.",
+        hint: "The supersonic cruise missile model displayed near the main entrance.",
       },
     },
     {
@@ -161,12 +161,12 @@ async function main() {
       qrCodeToken: "QR_TOKEN_CP05_QUANTUM_8T6L",
       isFinalTreasure: false,
       question: {
-        prompt: "Which foundational quantum information theorem, formulated by Wootters and Zurek in 1982, states that it is mathematically impossible to create an identical copy of an arbitrary unknown quantum state?",
-        type: "MULTIPLE_CHOICE",
-        options: JSON.stringify(["Superposition", "No-Cloning Theorem", "Quantum Decoherence", "Pauli Exclusion"]),
-        correctAnswer: "No-Cloning Theorem",
+        prompt: "WHAT IS THE REGISTRATION NUMBER OF BUS NUMBER 1?",
+        type: "TEXT_CODE",
+        options: null,
+        correctAnswer: "KL 40 E 6327|KL40E6327|KL 40E 6327|KL-40-E-6327",
         points: 100,
-        hint: "Wootters and Zurek (1982).",
+        hint: "Registration format: KL 40 E 6327.",
       },
     },
     {
@@ -177,12 +177,12 @@ async function main() {
       qrCodeToken: "QR_TOKEN_CP06_NEURAL_2V8Y",
       isFinalTreasure: false,
       question: {
-        prompt: "What is the name of the classic S-shaped neural network activation function that maps any real-valued number into a smooth probability output strictly between the open interval (0, 1)?",
+        prompt: "WHAT IS THE NAME MENTIONED IN THE WALL OPPOSITE THE STORE?",
         type: "TEXT_CODE",
         options: null,
-        correctAnswer: "SIGMOID",
+        correctAnswer: "ARANGU|അരങ്ങ്|ARANGU(MALAYALAM)|ARANGU (MALAYALAM)|ARANGU MALAYALAM",
         points: 100,
-        hint: "S-shaped logistic function.",
+        hint: "Cultural stage name painted on the opposite wall (Arangu / അരങ്ങ്).",
       },
     },
     {
@@ -193,12 +193,12 @@ async function main() {
       qrCodeToken: "QR_TOKEN_CP07_CIPHER_4H7D",
       isFinalTreasure: false,
       question: {
-        prompt: "A secret campus signal was encrypted using a classic Caesar Cipher with a forward shift of +3: 'WHFKHVW'. Decrypt this ciphertext (shift each character backwards by 3 positions) to uncover the original word.",
-        type: "TEXT_CODE",
+        prompt: "NUMBER OF FANS IN SNGCE MAIN CANTEEN?",
+        type: "NUMERIC",
         options: null,
-        correctAnswer: "TECHFEST",
+        correctAnswer: "20|TWENTY",
         points: 100,
-        hint: "Shift backwards by 3 letters.",
+        hint: "Count the total ceiling fans installed across the main dining area.",
       },
     },
     {
@@ -209,12 +209,12 @@ async function main() {
       qrCodeToken: "QR_TOKEN_CP08_TREASURE_VAULT_1A9Z",
       isFinalTreasure: false,
       question: {
-        prompt: "Which fundamental data structure operates strictly on a Last-In, First-Out (LIFO) order, where elements are both inserted (pushed) and removed (popped) exclusively from the top?",
+        prompt: "NAME OF SNGCE DOCTOR?",
         type: "TEXT_CODE",
         options: null,
-        correctAnswer: "STACK",
+        correctAnswer: "DR T M SREEDEVI|DR. T M SREEDEVI|DR TM SREEDEVI|DR. T. M. SREEDEVI|T M SREEDEVI|DR SREEDEVI|SREEDEVI",
         points: 100,
-        hint: "Think of push and pop operations, opposite of a FIFO Queue.",
+        hint: "Campus Medical Officer / Doctor.",
       },
     },
     {
@@ -225,12 +225,12 @@ async function main() {
       qrCodeToken: "QR_TOKEN_CP09_RADIO_6E3F",
       isFinalTreasure: false,
       question: {
-        prompt: "What standard port number is assigned by IANA for secure HTTPS communications?",
+        prompt: "NO OF STEPS IN PG BLOCK ENTRANCE?",
         type: "NUMERIC",
         options: null,
-        correctAnswer: "443",
+        correctAnswer: "11|ELEVEN",
         points: 100,
-        hint: "Common web security port.",
+        hint: "Count the steps leading up to the PG Block entrance.",
       },
     },
     {
@@ -241,7 +241,7 @@ async function main() {
       qrCodeToken: "QR_TOKEN_CP10_SINGULARITY_9Z0K",
       isFinalTreasure: true,
       question: {
-        prompt: "Ultimate milestone reached. Choose Box 1, Box 2, or Box 3 and present your physical token.",
+        prompt: "Ultimate milestone reached. Choose Box 1, Box 2, or Box 3 and present your physical token to the Box Marshal.",
         type: "BOX_SELECTION",
         options: JSON.stringify(["Box 1 (Titan Box)", "Box 2 (Cipher Box)", "Box 3 (Nova Box)"]),
         correctAnswer: "TREASURE_CLAIM",
@@ -273,7 +273,6 @@ async function main() {
     );
 
     const cpId = String(cpRes._id || cpRes.value?._id);
-    const answerHash = await bcrypt.hash(cpDef.question.correctAnswer.trim().toUpperCase(), 8);
 
     await qCol.deleteMany({ checkpointId: cpId });
     await qCol.insertOne({
@@ -281,7 +280,7 @@ async function main() {
       prompt: cpDef.question.prompt,
       type: cpDef.question.type,
       options: cpDef.question.options,
-      correctAnswerHash: answerHash,
+      correctAnswerHash: cpDef.question.correctAnswer.trim().toUpperCase(),
       points: cpDef.question.points,
       hint: cpDef.question.hint,
       createdAt: new Date(),
