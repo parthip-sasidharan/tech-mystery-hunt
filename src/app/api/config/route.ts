@@ -54,7 +54,8 @@ export async function POST(req: Request) {
 
     const validated = GameConfigSchema.safeParse(body);
     if (!validated.success) {
-      return NextResponse.json({ error: "Invalid configuration input." }, { status: 400 });
+      const firstErr = validated.error.errors[0]?.message || "Invalid configuration input.";
+      return NextResponse.json({ error: firstErr }, { status: 400 });
     }
 
     const { checkpointCount, gameStatus, registrationOpen, registrationWorkflow, hintThreshold, whatsappHelpline } = validated.data;

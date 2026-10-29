@@ -299,6 +299,8 @@ export default function AdminPage() {
   const [registrationOpen, setRegistrationOpen] = useState(true);
   const [registrationWorkflow, setRegistrationWorkflow] = useState<"AUTO_APPROVE" | "MANUAL_APPROVAL">("AUTO_APPROVE");
   const [whatsappHelplineInput, setWhatsappHelplineInput] = useState("+91 98765 43210");
+  const [savingHelpline, setSavingHelpline] = useState(false);
+  const [savingCheckpointCount, setSavingCheckpointCount] = useState(false);
   const [pendingPenaltyTasks, setPendingPenaltyTasks] = useState<any[]>([]);
   const [approvingPenaltyId, setApprovingPenaltyId] = useState<string | null>(null);
 
@@ -817,14 +819,19 @@ export default function AdminPage() {
     whatsappHelpline?: string;
   }) => {
     try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("techhunt_token") : null;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
       const res = await fetch("/api/config", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
+        credentials: "include",
         body: JSON.stringify(updates),
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(data.error || "Configuration update failed");
 
       if (data.gameStatus) setGameStatus(data.gameStatus);
       if (data.checkpointCount) {
@@ -1962,10 +1969,15 @@ URL: ${window.location.origin}/login`;
                 />
                 <button
                   type="button"
-                  onClick={() => updateConfig({ checkpointCount: customCheckpointCountInput })}
-                  className="px-4 py-2 rounded-xl bg-amber-400 text-black font-bold text-xs font-mono hover:bg-amber-300"
+                  disabled={savingCheckpointCount}
+                  onClick={async () => {
+                    setSavingCheckpointCount(true);
+                    await updateConfig({ checkpointCount: customCheckpointCountInput.trim() });
+                    setSavingCheckpointCount(false);
+                  }}
+                  className="px-4 py-2 rounded-xl bg-amber-400 text-black font-bold text-xs font-mono hover:bg-amber-300 disabled:opacity-50"
                 >
-                  Set Total Checkpoints
+                  {savingCheckpointCount ? "Saving..." : "Set Total Checkpoints"}
                 </button>
                 <span className="text-xs text-slate-400 font-mono">
                   Current: <strong className="text-cyan-400">{checkpointCount} total</strong> ({checkpointCount - 1} regular + 1 final)
@@ -2022,10 +2034,15 @@ URL: ${window.location.origin}/login`;
                     />
                     <button
                       type="button"
-                      onClick={() => updateConfig({ whatsappHelpline: whatsappHelplineInput })}
-                      className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs font-mono transition-all"
+                      disabled={savingHelpline}
+                      onClick={async () => {
+                        setSavingHelpline(true);
+                        await updateConfig({ whatsappHelpline: whatsappHelplineInput.trim() });
+                        setSavingHelpline(false);
+                      }}
+                      className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs font-mono transition-all disabled:opacity-50"
                     >
-                      Save
+                      {savingHelpline ? "Saving..." : "Save"}
                     </button>
                   </div>
                 </div>

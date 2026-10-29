@@ -58,12 +58,12 @@ export const PrizeClaimSchema = z.object({
 
 // ── Game Configuration (Admin) ─────────────────────────────────────────────────
 export const GameConfigSchema = z.object({
-  checkpointCount:      z.union([z.string().regex(/^\d+$/), z.number().int().min(2).max(50)]).optional(),
+  checkpointCount:      z.union([z.string().trim().regex(/^\d+$/), z.number().int().min(2).max(50)]).optional(),
   gameStatus:           z.enum(["WAITING", "ACTIVE", "PAUSED", "CONCLUDED"]).optional(),
   registrationOpen:     z.boolean().optional(),
   registrationWorkflow: z.enum(["AUTO_APPROVE", "MANUAL_APPROVAL"]).optional(),
   hintThreshold:        z.number().int().min(1).max(10).optional(),
-  whatsappHelpline:     z.string().trim().optional(),
+  whatsappHelpline:     z.string().trim().max(100).optional(),
 });
 
 // ── Bulk Team ID Generation ───────────────────────────────────────────────────
