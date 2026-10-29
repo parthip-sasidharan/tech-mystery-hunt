@@ -349,6 +349,73 @@ export async function validateCheckpointQr(teamId: string, qrToken: string) {
   const normalizedIncoming = qrToken.trim();
   const normalizedExpected = checkpoint.qrCodeToken.trim();
 
+  // 3.5 Fake / Decoy QR Detection (Troll meme video with 10s cooldown)
+  const upperToken = normalizedIncoming.toUpperCase();
+  const isFakeToken =
+    upperToken.startsWith("FAKE_") ||
+    upperToken.startsWith("QR_FAKE_") ||
+    upperToken.startsWith("DECOY_") ||
+    upperToken.startsWith("QR_DECOY_");
+
+  if (isFakeToken) {
+    const memeList = [
+      {
+        id: "aarattu",
+        title: "പണി പാളി മോനേ! ഇത് ഫേക്ക് QR ആണ്! 😂",
+        subtitle: "ആറാട്ടണ്ണൻ മോഡ് ഓൺ! ഒറിജിനൽ QR ഇതിനടുത്ത് തന്നെയുണ്ട്, ഒന്നുകൂടി തപ്പൂ!",
+        videoUrl: "/memes/meme-aarattu-annan.mp4",
+      },
+      {
+        id: "bethlehem",
+        title: "ബെത്‌ലഹേം കുടുംബ യൂണിറ്റ് ട്രോൾ! 🎭",
+        subtitle: "അയ്യോ പെട്ടു! ഇത് ഫേക്ക് QR ആണ്, ഒറിജിനൽ QR തപ്പൂ!",
+        videoUrl: "/memes/meme-bethlehem.mp4",
+      },
+      {
+        id: "sreenivasan",
+        title: "ശ്രീനിവാസൻ ഡാൻസ് ലോഡിങ്... 💃",
+        subtitle: "ഫേക്ക് QR-ൽ കയറി പെട്ട ടീം! ഒറിജിനൽ QR അടുത്തുണ്ട്!",
+        videoUrl: "/memes/meme-dance-sreenivasan.mp4",
+      },
+      {
+        id: "dasa",
+        title: "എല്ലാത്തിനും അതിന്റേതായ സമയമുണ്ട് ദാസാ! ⏳",
+        subtitle: "ഇത് ഫേക്ക് ആണ്! ഒറിജിനൽ കണ്ടെത്താൻ കുറച്ചുകൂടി ശ്രദ്ധിക്കൂ!",
+        videoUrl: "/memes/meme-ellathinum-samayamundu.mp4",
+      },
+      {
+        id: "dileep",
+        title: "കോമഡി ട്രാപ്പ്! 🤣",
+        subtitle: "കൺഗ്രാജുലേഷൻസ്... നിങ്ങൾ ഒരു ഫേക്ക് QR കണ്ടെത്തിയിരിക്കുന്നു!",
+        videoUrl: "/memes/meme-funny-dileep.mp4",
+      },
+    ];
+
+    let selectedMeme = memeList[Math.floor(Math.random() * memeList.length)];
+    if (upperToken.includes("1") || upperToken.includes("AARATTU")) selectedMeme = memeList[0];
+    else if (upperToken.includes("2") || upperToken.includes("BETHLEHEM")) selectedMeme = memeList[1];
+    else if (upperToken.includes("3") || upperToken.includes("DANCE") || upperToken.includes("SREENI")) selectedMeme = memeList[2];
+    else if (upperToken.includes("4") || upperToken.includes("DASA") || upperToken.includes("SAMAYAM")) selectedMeme = memeList[3];
+    else if (upperToken.includes("5") || upperToken.includes("DILEEP")) selectedMeme = memeList[4];
+
+    await AuditLog.create({
+      action: "QR_FAKE_DECOY_TRIGGERED",
+      actorRole: "TEAM",
+      actorId: String(team._id),
+      details: JSON.stringify({ token: normalizedIncoming, teamId: team.teamId, meme: selectedMeme.id }),
+    });
+
+    return {
+      success: false,
+      isFakeQr: true,
+      meme: {
+        ...selectedMeme,
+        cooldownSeconds: 10,
+      },
+      message: "പണി പാളി! ഇത് ഫേക്ക് QR ആണ്! 10 സെക്കൻഡ് കഴിഞ്ഞ് വീണ്ടും സ്കാൻ ചെയ്യാം.",
+    };
+  }
+
   // 4. Token & Sequence Verification
   if (normalizedIncoming !== normalizedExpected) {
     const anyMatching = await Checkpoint.findOne({ qrCodeToken: normalizedIncoming }).lean();

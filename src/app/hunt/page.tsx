@@ -23,7 +23,8 @@ import {
   CameraOff,
   MessageSquare,
   Video,
-  PhoneCall
+  PhoneCall,
+  Clock
 } from "lucide-react";
 
 interface PenaltyTaskData {
@@ -128,7 +129,30 @@ export default function HuntPage() {
   const [bypassCodeInput, setBypassCodeInput] = useState("");
   const [bypassLoading, setBypassLoading] = useState(false);
   const [bypassError, setBypassError] = useState<string | null>(null);
+
+  // Fake QR Meme Trap State (10s cooldown)
+  const [fakeQrMeme, setFakeQrMeme] = useState<{
+    id?: string;
+    title: string;
+    subtitle: string;
+    videoUrl: string;
+  } | null>(null);
+  const [memeCooldown, setMemeCooldown] = useState<number>(0);
   const prevCheckpointIndexRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (memeCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setMemeCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [memeCooldown]);
 
   useEffect(() => {
     if (prevCheckpointIndexRef.current !== null && prevCheckpointIndexRef.current !== checkpointIndex) {
@@ -287,6 +311,15 @@ export default function HuntPage() {
 
       if (!res.ok) {
         throw new Error(data.error || "QR validation failed");
+      }
+
+      // Check if team scanned a Fake / Decoy Meme QR
+      if (data.isFakeQr) {
+        stopCamera();
+        setQrTokenInput("");
+        setFakeQrMeme(data.meme);
+        setMemeCooldown(data.meme?.cooldownSeconds || 10);
+        return;
       }
 
       setScanMessage({ type: "success", text: data.message });
@@ -930,6 +963,69 @@ export default function HuntPage() {
           </div>
         </div>
       ) : null}
+
+      {/* FAKE QR / TROLL MEME MODAL WITH 10S COOLDOWN */}
+      {fakeQrMeme && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="max-w-md w-full glow-card rounded-2xl p-5 sm:p-6 border-2 border-amber-500/60 bg-surface-100 shadow-[0_0_50px_rgba(245,158,11,0.3)] text-center animate-in fade-in zoom-in-95 duration-300">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase mb-3 bg-amber-500/20 text-amber-300 border border-amber-500/40">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping mr-1" />
+              🚨 FAKE QR TRAP ACTIVATED!
+            </div>
+
+            {/* Video Player */}
+            <div className="relative rounded-xl overflow-hidden border border-amber-500/30 bg-black mb-4">
+              <video
+                src={fakeQrMeme.videoUrl}
+                autoPlay
+                loop
+                playsInline
+                controls
+                className="w-full max-h-64 object-contain mx-auto"
+              />
+            </div>
+
+            <h3 className="text-xl sm:text-2xl font-black text-amber-300 font-mono mb-1 leading-snug">
+              {fakeQrMeme.title}
+            </h3>
+            <p className="text-xs text-slate-300 font-mono mb-5">
+              {fakeQrMeme.subtitle}
+            </p>
+
+            {/* 10-Second Cooldown Timer & Action */}
+            <div className="space-y-3">
+              {memeCooldown > 0 ? (
+                <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-300 font-mono text-xs flex items-center justify-center gap-2">
+                  <Clock className="w-4 h-4 animate-spin text-rose-400" />
+                  <span className="font-bold">
+                    ⏳ SCANNER COOLDOWN: {memeCooldown}s Remaining
+                  </span>
+                </div>
+              ) : (
+                <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 font-mono text-xs flex items-center justify-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span className="font-bold">✓ Cooldown complete! You can search real QR.</span>
+                </div>
+              )}
+
+              <button
+                type="button"
+                disabled={memeCooldown > 0}
+                onClick={() => setFakeQrMeme(null)}
+                className={`w-full py-3 rounded-xl font-mono font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+                  memeCooldown > 0
+                    ? "bg-surface-50 text-slate-500 border border-surface-border cursor-not-allowed opacity-60"
+                    : "bg-gradient-to-r from-emerald-500 to-green-600 text-black shadow-glow-emerald cursor-pointer hover:from-emerald-400 hover:to-green-500"
+                }`}
+              >
+                {memeCooldown > 0
+                  ? `Wait ${memeCooldown}s to resume hunt...`
+                  : "Close & Search for Real QR →"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* GLOBAL TOURNAMENT BROADCAST MODAL */}
       {broadcast && !dismissedBroadcast && (

@@ -37,7 +37,32 @@ export async function GET() {
       })
     );
 
-    return NextResponse.json({ checkpointCount, checkpoints: qrCodesWithImages });
+    const fakeDefinitions = [
+      { token: "QR_FAKE_01", label: "Fake Decoy QR #1", meme: "Aarattu Annan Police" },
+      { token: "QR_FAKE_02", label: "Fake Decoy QR #2", meme: "Bethlehem Kudumba Unit" },
+      { token: "QR_FAKE_03", label: "Fake Decoy QR #3", meme: "Dance Sreenivasan" },
+      { token: "QR_FAKE_04", label: "Fake Decoy QR #4", meme: "Ellathinum Samayamundu Dasaa" },
+      { token: "QR_FAKE_05", label: "Fake Decoy QR #5", meme: "Funny Dileep Comedy" },
+    ];
+
+    const fakeQrs = await Promise.all(
+      fakeDefinitions.map(async (f, idx) => {
+        const qrDataUrl = await QRCode.toDataURL(f.token, {
+          width: 300,
+          margin: 2,
+          color: { dark: "#000000", light: "#ffffff" },
+        });
+        return {
+          id: `fake_${idx + 1}`,
+          token: f.token,
+          label: f.label,
+          meme: f.meme,
+          qrDataUrl,
+        };
+      })
+    );
+
+    return NextResponse.json({ checkpointCount, checkpoints: qrCodesWithImages, fakeQrs });
 
   } catch (err: unknown) {
     console.error("[ADMIN QR]", err);

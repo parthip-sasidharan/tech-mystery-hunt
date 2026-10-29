@@ -73,6 +73,14 @@ interface CheckpointQr {
   qrDataUrl: string;
 }
 
+interface FakeQrItem {
+  id: string;
+  token: string;
+  label: string;
+  meme: string;
+  qrDataUrl: string;
+}
+
 interface TeamIdItem {
   id: string;
   teamId: string;
@@ -334,6 +342,8 @@ export default function AdminPage() {
 
   // QR Codes Data
   const [qrCodes, setQrCodes] = useState<CheckpointQr[]>([]);
+  const [fakeQrCodes, setFakeQrCodes] = useState<FakeQrItem[]>([]);
+  const [qrPrintTab, setQrPrintTab] = useState<"official" | "fake">("official");
 
   // Reports Data
   const [reportsData, setReportsData] = useState<any>(null);
@@ -791,6 +801,7 @@ export default function AdminPage() {
       const res = await fetch("/api/admin/qrcodes");
       const data = await res.json();
       if (data.checkpoints) setQrCodes(data.checkpoints);
+      if (data.fakeQrs) setFakeQrCodes(data.fakeQrs);
     } catch (err) {
       console.error(err);
     }
@@ -3511,51 +3522,121 @@ URL: ${window.location.origin}/login`;
                   <QrCode className="w-4 h-4 text-cyan-400" /> Physical Checkpoint QR Deployments
                 </h3>
                 <p className="text-xs text-slate-400 mt-1">
-                  Cryptographic QR codes for all physical checkpoints. Print and mount at campus locations.
+                  Cryptographic QR codes for physical checkpoints & decoy troll traps. Print and mount at campus locations.
                 </p>
               </div>
 
-              <button
-                type="button"
-                onClick={() => window.print()}
-                className="px-4 py-2 rounded-xl bg-surface-50 border border-surface-border text-slate-200 hover:text-white text-xs font-mono flex items-center gap-2 self-start"
-              >
-                <Printer className="w-4 h-4" /> Print Checkpoint Sheets
-              </button>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center p-1 bg-surface-50 border border-surface-border rounded-xl">
+                  <button
+                    type="button"
+                    onClick={() => setQrPrintTab("official")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all ${
+                      qrPrintTab === "official"
+                        ? "bg-cipher-cyan text-black font-bold shadow-glow-cyan"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    Official Checkpoints ({qrCodes.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQrPrintTab("fake")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all ${
+                      qrPrintTab === "fake"
+                        ? "bg-amber-400 text-black font-bold shadow-glow-amber"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    🎭 Decoy / Meme QRs ({fakeQrCodes.length})
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-4 py-2 rounded-xl bg-surface-50 border border-surface-border text-slate-200 hover:text-white text-xs font-mono flex items-center gap-2 self-start"
+                >
+                  <Printer className="w-4 h-4" /> Print {qrPrintTab === "official" ? "Checkpoints" : "Decoy QRs"}
+                </button>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
-              {qrCodes.map((cp) => (
-                <div
-                  key={cp.id}
-                  className="bg-white text-slate-900 rounded-xl p-5 shadow-lg border-2 border-slate-300 flex flex-col items-center text-center font-sans"
-                >
-                  <div className="text-xs font-mono font-bold tracking-widest text-slate-500 uppercase">
-                    TECH MYSTERY HUNT • CHECKPOINT #{cp.sequenceNumber}
-                  </div>
-                  <h4 className="text-lg font-bold text-slate-950 mt-1 mb-3">{cp.name}</h4>
+            {qrPrintTab === "official" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+                {qrCodes.map((cp) => (
+                  <div
+                    key={cp.id}
+                    className="bg-white text-slate-900 rounded-xl p-5 shadow-lg border-2 border-slate-300 flex flex-col items-center text-center font-sans break-inside-avoid"
+                  >
+                    <div className="text-xs font-mono font-bold tracking-widest text-slate-500 uppercase">
+                      TECH MYSTERY HUNT • CHECKPOINT #{cp.sequenceNumber}
+                    </div>
+                    <h4 className="text-lg font-bold text-slate-950 mt-1 mb-3">{cp.name}</h4>
 
-                  <div className="p-2 bg-white rounded-lg border border-slate-300 mb-3">
-                    <img
-                      src={cp.qrDataUrl}
-                      alt={`QR code for ${cp.name}`}
-                      className="w-48 h-48 object-contain"
-                    />
-                  </div>
+                    <div className="p-2 bg-white rounded-lg border border-slate-300 mb-3">
+                      <img
+                        src={cp.qrDataUrl}
+                        alt={`QR code for ${cp.name}`}
+                        className="w-48 h-48 object-contain"
+                      />
+                    </div>
 
-                  <div className="text-[11px] font-mono text-slate-700 bg-slate-100 px-3 py-1.5 rounded w-full break-all mb-2">
-                    TOKEN: {cp.qrCodeToken}
-                  </div>
+                    <div className="text-[11px] font-mono text-slate-700 bg-slate-100 px-3 py-1.5 rounded w-full break-all mb-2">
+                      TOKEN: {cp.qrCodeToken}
+                    </div>
 
-                  <div className="text-xs text-slate-600 italic">
-                    Location: {cp.campusArea}
+                    <div className="text-xs text-slate-600 italic">
+                      Location: {cp.campusArea}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-4 pt-4">
+                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs font-mono flex items-center gap-3">
+                  <span className="text-xl">⚠️</span>
+                  <div>
+                    <span className="font-bold uppercase">Decoy / Fake QR Instructions:</span> Paste these printable fake QRs near or in between real checkpoints. When scanned by a team, it immediately activates the Malayalam troll meme video and forces a <strong>10-second scanner lockdown</strong>!
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
 
-          
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {fakeQrCodes.map((f, idx) => (
+                    <div
+                      key={f.id}
+                      className="bg-white text-slate-900 rounded-xl p-5 shadow-lg border-2 border-amber-400 flex flex-col items-center text-center font-sans break-inside-avoid relative overflow-hidden"
+                    >
+                      <div className="w-full bg-amber-400 text-black text-[10px] font-mono font-black py-0.5 uppercase tracking-wider mb-2 rounded">
+                        DECOY / MEME TRAP QR
+                      </div>
+                      <div className="text-xs font-mono font-bold tracking-widest text-slate-500 uppercase">
+                        TECH MYSTERY HUNT • TRAP #{idx + 1}
+                      </div>
+                      <h4 className="text-base font-bold text-slate-950 mt-1 mb-1">{f.meme}</h4>
+                      <p className="text-[11px] text-amber-700 font-medium mb-3">⚠️ 10-Second Lockdown Meme Trap</p>
+
+                      <div className="p-2 bg-white rounded-lg border border-amber-300 mb-3">
+                        <img
+                          src={f.qrDataUrl}
+                          alt={`Decoy QR code for ${f.meme}`}
+                          className="w-48 h-48 object-contain"
+                        />
+                      </div>
+
+                      <div className="text-[11px] font-mono text-amber-900 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded w-full break-all mb-2 font-bold">
+                        TOKEN: {f.token}
+                      </div>
+
+                      <div className="text-[11px] text-slate-500 italic">
+                        Paste anywhere to distract teams
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
