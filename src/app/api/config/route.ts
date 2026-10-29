@@ -17,22 +17,31 @@ import { AuditLog, Checkpoint, TeamIdPool } from "@/server/models";
 // Public endpoint – returns non-sensitive game state info
 export async function GET() {
   try {
-    const configs = await getAllConfigs();
-    const checkpointCount = await getCheckpointCount();
-    const gameStatus = await getGameStatus();
-    const registrationOpen = await isRegistrationOpen();
-    const registrationWorkflow = await getRegistrationWorkflow();
+    const [configs, checkpointCount, gameStatus, registrationOpen, registrationWorkflow] = await Promise.all([
+      getAllConfigs(),
+      getCheckpointCount(),
+      getGameStatus(),
+      isRegistrationOpen(),
+      getRegistrationWorkflow(),
+    ]);
     const whatsappHelpline = configs["WHATSAPP_HELPLINE_NUMBER"] || "+91 98765 43210";
 
-    return NextResponse.json({
-      title:               configs["HUNT_TITLE"] || "Tech Mystery Hunt – The Missing Code",
-      checkpointCount,
-      gameStatus,
-      registrationOpen,
-      registrationWorkflow,
-      whatsappHelpline,
-      totalTreasureBoxes: parseInt(configs["TOTAL_TREASURE_BOXES"] || "3", 10),
-    });
+    return NextResponse.json(
+      {
+        title: configs["HUNT_TITLE"] || "Tech Mystery Hunt – The Missing Code",
+        checkpointCount,
+        gameStatus,
+        registrationOpen,
+        registrationWorkflow,
+        whatsappHelpline,
+        totalTreasureBoxes: parseInt(configs["TOTAL_TREASURE_BOXES"] || "3", 10),
+      },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=3, stale-while-revalidate=6",
+        },
+      }
+    );
   } catch (err: unknown) {
     console.error("[CONFIG GET]", err);
     return NextResponse.json({ error: "Failed to load configuration." }, { status: 500 });

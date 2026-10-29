@@ -39,18 +39,23 @@ export default function Navbar() {
     const headers: Record<string, string> = {};
     if (token) headers["Authorization"] = `Bearer ${token}`;
 
-    // Check session
-    fetch("/api/auth/me", { headers, credentials: "include" })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.authenticated) {
-          setUser({ ...data.user, role: data.role });
-        } else {
-          setUser(null);
-        }
-      })
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
+    // Check session only if a token is present
+    if (token) {
+      fetch("/api/auth/me", { headers, credentials: "include" })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.authenticated) {
+            setUser({ ...data.user, role: data.role });
+          } else {
+            setUser(null);
+          }
+        })
+        .catch(() => setUser(null))
+        .finally(() => setLoading(false));
+    } else {
+      setUser(null);
+      setLoading(false);
+    }
 
     // Check game config
     fetch("/api/config")

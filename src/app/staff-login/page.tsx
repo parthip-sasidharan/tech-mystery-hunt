@@ -18,7 +18,7 @@ import {
 export default function StaffLoginPage() {
   const router = useRouter();
 
-  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [checkingAuth, setCheckingAuth] = useState(false);
   const [staffIdentifier, setStaffIdentifier] = useState("");
   const [staffPassword, setStaffPassword] = useState("");
   const [showStaffPassword, setShowStaffPassword] = useState(false);
@@ -27,13 +27,19 @@ export default function StaffLoginPage() {
 
   useEffect(() => {
     let mounted = true;
+    const storedToken = typeof window !== "undefined" ? localStorage.getItem("techhunt_token") : null;
+    if (!storedToken) {
+      setCheckingAuth(false);
+      return;
+    }
+
+    setCheckingAuth(true);
+
     const checkActiveSession = async () => {
       try {
-        const storedToken = typeof window !== "undefined" ? localStorage.getItem("techhunt_token") : null;
-        const headers: Record<string, string> = {};
-        if (storedToken) {
-          headers["Authorization"] = `Bearer ${storedToken}`;
-        }
+        const headers: Record<string, string> = {
+          Authorization: `Bearer ${storedToken}`,
+        };
         const res = await fetch("/api/auth/me", {
           headers,
           credentials: "include",
