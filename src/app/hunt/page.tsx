@@ -26,6 +26,7 @@ import {
   PhoneCall,
   Clock
 } from "lucide-react";
+import jsQR from "jsqr";
 
 interface PenaltyTaskData {
   taskText: string;
@@ -354,29 +355,51 @@ export default function HuntPage() {
       setTimeout(() => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
+          videoRef.current.setAttribute("playsinline", "true");
+          videoRef.current.setAttribute("webkit-playsinline", "true");
           videoRef.current.play().catch(() => {});
 
-          if ("BarcodeDetector" in window) {
-            try {
-              // @ts-expect-error BarcodeDetector might not be in standard TypeScript lib
-              const barcodeDetector = new window.BarcodeDetector({ formats: ["qr_code"] });
-              scanIntervalRef.current = setInterval(async () => {
-                if (isScanningRef.current) return;
-                if (videoRef.current && videoRef.current.readyState >= 2) {
-                  try {
-                    const barcodes = await barcodeDetector.detect(videoRef.current);
-                    if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
-                      triggerScan(barcodes[0].rawValue);
-                    }
-                  } catch {
-                    // Ignore transient frame detection error
-                  }
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+          scanIntervalRef.current = setInterval(async () => {
+            if (isScanningRef.current) return;
+            const video = videoRef.current;
+            if (!video || video.readyState < 2) return;
+
+            // 1. Try native BarcodeDetector if available (e.g. Chrome on Android)
+            if ("BarcodeDetector" in window) {
+              try {
+                // @ts-expect-error BarcodeDetector might not be in standard TypeScript lib
+                const barcodeDetector = new window.BarcodeDetector({ formats: ["qr_code"] });
+                const barcodes = await barcodeDetector.detect(video);
+                if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
+                  triggerScan(barcodes[0].rawValue);
+                  return;
                 }
-              }, 750);
-            } catch {
-              // BarcodeDetector constructor failed
+              } catch {
+                // Fallback to jsQR
+              }
             }
-          }
+
+            // 2. Universal jsQR decoder (iOS Safari / iPhone / browsers without native BarcodeDetector)
+            if (ctx && video.videoWidth > 0 && video.videoHeight > 0) {
+              try {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                  inversionAttempts: "dontInvert",
+                });
+                if (code && code.data && code.data.trim()) {
+                  triggerScan(code.data.trim());
+                }
+              } catch {
+                // Frame decode error - continue to next frame
+              }
+            }
+          }, 500);
         }
       }, 100);
     } catch (err: unknown) {
@@ -730,6 +753,7 @@ export default function HuntPage() {
                     <div className="relative rounded-xl overflow-hidden border border-cyan-500/40 bg-black aspect-video flex items-center justify-center mb-3">
                       <video
                         ref={videoRef}
+                        autoPlay
                         playsInline
                         muted
                         className="w-full h-full object-cover"
