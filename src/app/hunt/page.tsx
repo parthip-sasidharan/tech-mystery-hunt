@@ -558,131 +558,45 @@ export default function HuntPage() {
         </div>
       </div>
 
-      {/* FINAL TREASURE VAULT / SEQUENTIAL BOX HUNT / VICTORY SCREEN */}
+      {/* FINAL TREASURE VAULT / HUNT COMPLETE SCREEN */}
       {(isAllCompleted || currentStage === "TREASURE_SEARCH" || currentStage === "FINISHED") ? (
         <div className="space-y-6">
-          <div className="glow-card rounded-2xl p-6 sm:p-10 border-amber-500/40 bg-surface-100/90 text-center shadow-glow-amber">
-            <div className="w-16 h-16 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center mx-auto mb-4">
-              <Sparkles className="w-8 h-8 animate-bounce" />
+          <div className="glow-card rounded-2xl p-6 sm:p-12 border-emerald-500/40 bg-surface-100/90 text-center shadow-glow-emerald">
+            <div className="w-20 h-20 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto mb-4">
+              <Sparkles className="w-10 h-10 animate-bounce" />
             </div>
 
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase mb-3 bg-amber-500/10 text-amber-300 border border-amber-500/30">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              Final Stage: Physical Treasure Vault
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase mb-3 bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              Hunt Completed • Final Checkpoint Reached
             </div>
 
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-white font-mono mb-2">
-              {treasureStatus?.allBoxesClaimed
-                ? "THE TREASURE HUNT IS CONCLUDED!"
-                : treasureStatus?.activeBoxNumber === 1
-                ? "🏆 1ST PLACE HUNT UNDERWAY (BOX #1)"
-                : treasureStatus?.activeBoxNumber === 2
-                ? "🥈 2ND PLACE HUNT UNDERWAY (BOX #2)"
-                : "🥉 3RD PLACE HUNT UNDERWAY (BOX #3)"}
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white font-mono mb-2">
+              🎉 അഭിനന്ദനങ്ങൾ! നിങ്ങൾ എല്ലാ ചെക്ക്‌പോയിന്റുകളും വിജയകരമായി കണ്ടെത്തി!
             </h1>
 
-            <p className="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto mb-6">
-              {treasureStatus?.allBoxesClaimed
-                ? "All three physical treasure boxes have been uncovered and verified by event marshalls! View final podium below."
-                : "Decipher the physical clue below, locate the hidden box in this area, and rush it to the Volunteer Desk!"}
-            </p>
-
-            {/* Active Physical Clue Card */}
-            {!treasureStatus?.allBoxesClaimed && treasureStatus?.activeBoxClue && (
-              <div className="max-w-2xl mx-auto mb-8 p-6 rounded-2xl bg-gradient-to-br from-amber-950/40 via-surface-200 to-surface-300 border border-amber-500/40 text-left shadow-glow-amber/20">
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <div className="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <Package className="w-4 h-4 text-amber-400" /> ACTIVE CLUE FOR BOX #{treasureStatus.activeBoxNumber}
-                  </div>
-                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold animate-pulse">
-                    LIVE HUNT IN PROGRESS
-                  </span>
-                </div>
-                <p className="text-base sm:text-lg text-white font-medium leading-relaxed font-mono">
-                  {treasureStatus.activeBoxClue}
-                </p>
-                <div className="mt-4 pt-3 border-t border-surface-border text-xs text-slate-400 flex items-center justify-between">
-                  <span>Target: Physical Box #{treasureStatus.activeBoxNumber}</span>
-                  <span className="text-amber-400 font-mono font-semibold">1st Team to Volunteer Wins</span>
-                </div>
+            {/* Prominent Return to Start Message */}
+            <div className="max-w-2xl mx-auto my-6 p-6 sm:p-8 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 shadow-glow-emerald">
+              <div className="text-2xl sm:text-3xl font-black text-emerald-300 font-mono tracking-wide leading-relaxed">
+                നിങ്ങൾ തുടങ്ങിയ സ്ഥലത്തു തന്നെ തിരിച്ചു എത്തുക!
               </div>
-            )}
-
-            {/* Team Claim Ticket */}
-            {prizeClaim && (
-              <div className="max-w-md mx-auto bg-surface-300 rounded-2xl p-6 border border-amber-500/30 text-left font-mono mb-8">
-                <div className="text-xs text-slate-400 uppercase tracking-widest mb-1 flex items-center justify-between">
-                  <span>OFFICIAL PHYSICAL CLAIM TICKET</span>
-                  <span className="text-cyan-400 font-bold">BOX #{prizeClaim.boxNumber}</span>
-                </div>
-                <div className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                  <Package className="w-6 h-6 text-amber-400" />
-                  {prizeClaim.status === "CONFIRMED"
-                    ? `OFFICIALLY VERIFIED: BOX #${prizeClaim.boxNumber} WINNER!`
-                    : `HUNTING: TARGET BOX #${prizeClaim.boxNumber}`}
-                </div>
-
-                <div className="p-4 rounded-xl bg-surface-50 border border-surface-border space-y-1.5 mb-4">
-                  <div className="text-[11px] text-slate-400 uppercase">SHOW THIS CLAIM CODE TO VOLUNTEER:</div>
-                  <div className="text-xl sm:text-2xl font-mono font-extrabold text-cyan-400 tracking-wider">
-                    {prizeClaim.claimCode}
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">MARSHALL STATUS:</span>
-                  <span className={`px-2.5 py-1 rounded-full font-bold ${
-                    prizeClaim.status === "CONFIRMED"
-                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                      : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                  }`}>
-                    {prizeClaim.status === "CONFIRMED" ? "✓ VERIFIED & HANDED OVER" : "⏳ PENDING PHYSICAL VERIFICATION"}
-                  </span>
-                </div>
+              <div className="text-sm sm:text-base text-slate-300 font-mono mt-3">
+                (Please return immediately to the venue where you started!)
               </div>
-            )}
+            </div>
 
-            {/* Live Podium Standings (Box 1, 2, 3) */}
-            <div className="max-w-2xl mx-auto">
-              <h3 className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider mb-3">
-                🏆 LIVE TOURNAMENT PODIUM
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {[1, 2, 3].map((boxNum) => {
-                  const winner = treasureStatus?.confirmedWinners?.find((w) => w.boxNumber === boxNum);
-                  const isCurrentTarget = treasureStatus?.activeBoxNumber === boxNum;
-                  return (
-                    <div
-                      key={boxNum}
-                      className={`p-4 rounded-xl border text-center transition-all ${
-                        winner
-                          ? "bg-emerald-500/10 border-emerald-500/40 shadow-glow-emerald"
-                          : isCurrentTarget
-                          ? "bg-amber-500/10 border-amber-400 shadow-glow-amber animate-pulse"
-                          : "bg-surface-50 border-surface-border text-slate-500 opacity-60"
-                      }`}
-                    >
-                      <div className="text-2xl mb-1">
-                        {boxNum === 1 ? "🥇" : boxNum === 2 ? "🥈" : "🥉"}
-                      </div>
-                      <div className="font-mono font-bold text-sm text-white">
-                        {boxNum === 1 ? "1ST PLACE (BOX #1)" : boxNum === 2 ? "2ND PLACE (BOX #2)" : "3RD PLACE (BOX #3)"}
-                      </div>
-                      <div className="text-xs mt-2 font-mono">
-                        {winner ? (
-                          <div className="text-emerald-400 font-bold">
-                            <div>✓ {winner.teamName}</div>
-                            <div className="text-[10px] text-slate-400">{winner.teamId}</div>
-                          </div>
-                        ) : isCurrentTarget ? (
-                          <span className="text-amber-400 font-bold">🔍 ACTIVE SEARCH...</span>
-                        ) : (
-                          <span className="text-slate-500">🔒 LOCKED</span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+            <div className="max-w-md mx-auto p-4 rounded-xl bg-surface-50 border border-surface-border text-xs font-mono text-slate-300 space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-slate-400">Team:</span>
+                <span className="text-white font-bold">{teamIdDisplay}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-400">Checkpoints Solved:</span>
+                <span className="text-emerald-400 font-bold">10 / 10 Completed ✓</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-400">Next Action:</span>
+                <span className="text-amber-300 font-bold">Report to Event Organizers at Starting Point</span>
               </div>
             </div>
           </div>

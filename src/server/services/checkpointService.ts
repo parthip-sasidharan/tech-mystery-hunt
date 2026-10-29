@@ -427,7 +427,7 @@ export async function validateCheckpointQr(teamId: string, qrToken: string) {
     return {
       success: true,
       isFinalTreasure: true,
-      message: "Final Treasure Vault Unlocked! Follow your active physical clue to locate the prize box and present it to the Vault Marshall.",
+      message: "നിങ്ങൾ തുടങ്ങിയ സ്ഥലത്തു തന്നെ തിരിച്ചു എത്തുക! (All checkpoints solved! Return to the starting venue!)",
       checkpointId,
       checkpointName: checkpoint.name,
       treasureStatus: status,
