@@ -514,6 +514,14 @@ export default function AdminPage() {
     }
   };
 
+  const getAdminAuthHeaders = (json: boolean = true): Record<string, string> => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("techhunt_token") : null;
+    const headers: Record<string, string> = {};
+    if (json) headers["Content-Type"] = "application/json";
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    return headers;
+  };
+
   const fetchOverviewData = async () => {
     try {
       const token = typeof window !== "undefined" ? localStorage.getItem("techhunt_token") : null;
@@ -714,7 +722,10 @@ export default function AdminPage() {
   const fetchCheckpoints = async () => {
     setCheckpointsLoading(true);
     try {
-      const res = await fetch("/api/admin/checkpoints");
+      const res = await fetch("/api/admin/checkpoints", {
+        headers: getAdminAuthHeaders(false),
+        credentials: "include",
+      });
       const data = await res.json();
       if (data.checkpoints) setCheckpoints(data.checkpoints);
     } catch (err) {
@@ -727,7 +738,10 @@ export default function AdminPage() {
   const fetchRoutes = async () => {
     setRoutesLoading(true);
     try {
-      const res = await fetch("/api/admin/routes");
+      const res = await fetch("/api/admin/routes", {
+        headers: getAdminAuthHeaders(false),
+        credentials: "include",
+      });
       const data = await res.json();
       if (data.routes) setRoutes(data.routes);
       if (data.summary) setRoutesSummary(data.summary);
@@ -741,7 +755,10 @@ export default function AdminPage() {
   const fetchVolunteers = async () => {
     setVolunteersLoading(true);
     try {
-      const res = await fetch("/api/admin/volunteers");
+      const res = await fetch("/api/admin/volunteers", {
+        headers: getAdminAuthHeaders(false),
+        credentials: "include",
+      });
       const data = await res.json();
       if (data.volunteers) setVolunteers(data.volunteers);
     } catch (err) {
@@ -759,7 +776,10 @@ export default function AdminPage() {
       if (teamIdSearch) params.set("search", teamIdSearch);
       params.set("limit", "100");
 
-      const res = await fetch(`/api/admin/team-ids?${params.toString()}`);
+      const res = await fetch(`/api/admin/team-ids?${params.toString()}`, {
+        headers: getAdminAuthHeaders(false),
+        credentials: "include",
+      });
       const data = await res.json();
       if (data.items) setTeamIds(data.items);
       if (data.stats) setTeamIdStats(data.stats);
@@ -773,7 +793,10 @@ export default function AdminPage() {
   const fetchRegistrations = async () => {
     setRegsLoading(true);
     try {
-      const res = await fetch(`/api/admin/registrations?status=${regFilter}`);
+      const res = await fetch(`/api/admin/registrations?status=${regFilter}`, {
+        headers: getAdminAuthHeaders(false),
+        credentials: "include",
+      });
       const data = await res.json();
       if (data.registrations) setRegistrations(data.registrations);
     } catch (err) {
@@ -786,7 +809,10 @@ export default function AdminPage() {
   const fetchReports = async () => {
     setReportsLoading(true);
     try {
-      const res = await fetch("/api/admin/reports");
+      const res = await fetch("/api/admin/reports", {
+        headers: getAdminAuthHeaders(false),
+        credentials: "include",
+      });
       const data = await res.json();
       setReportsData(data);
     } catch (err) {
@@ -798,7 +824,10 @@ export default function AdminPage() {
 
   const fetchQrCodes = async () => {
     try {
-      const res = await fetch("/api/admin/qrcodes");
+      const res = await fetch("/api/admin/qrcodes", {
+        headers: getAdminAuthHeaders(false),
+        credentials: "include",
+      });
       const data = await res.json();
       if (data.checkpoints) setQrCodes(data.checkpoints);
       if (data.fakeQrs) setFakeQrCodes(data.fakeQrs);
@@ -927,11 +956,12 @@ export default function AdminPage() {
 
       const res = await fetch("/api/admin/checkpoints", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAdminAuthHeaders(true),
+        credentials: "include",
         body: JSON.stringify(payload),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(data.error || "Failed to create checkpoint.");
 
       showNotification(`Checkpoint #${data.checkpoint.sequenceNumber} "${data.checkpoint.name}" created.`);
       setShowAddCheckpointModal(false);
@@ -980,7 +1010,7 @@ export default function AdminPage() {
         campusArea: cpFormArea.trim() || cpFormName.trim(),
         locationHint: cpFormHint.trim(),
         isFinalTreasure: cpFormIsFinal,
-        penaltyTask: cpFormPenaltyTask.trim(),
+        penaltyTask: cpFormPenaltyTask.trim() || null,
         question: {
           prompt: cpFormPrompt.trim(),
           type: cpFormType,
@@ -996,11 +1026,12 @@ export default function AdminPage() {
 
       const res = await fetch(`/api/admin/checkpoints/${editingCheckpoint.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: getAdminAuthHeaders(true),
+        credentials: "include",
         body: JSON.stringify(payload),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(data.error || "Failed to update checkpoint.");
 
       showNotification(`Checkpoint updated: ${data.message || ""}`);
       setEditingCheckpoint(null);
@@ -1019,11 +1050,12 @@ export default function AdminPage() {
       const nextActive = !cp.active;
       const res = await fetch(`/api/admin/checkpoints/${cp.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: getAdminAuthHeaders(true),
+        credentials: "include",
         body: JSON.stringify({ active: nextActive }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(data.error || "Failed to toggle checkpoint.");
 
       showNotification(`Checkpoint #${cp.sequenceNumber} is now ${nextActive ? "Active" : "Deactivated"}.`);
       fetchCheckpoints();
@@ -1038,9 +1070,11 @@ export default function AdminPage() {
     try {
       const res = await fetch(`/api/admin/checkpoints/${cp.id}`, {
         method: "DELETE",
+        headers: getAdminAuthHeaders(false),
+        credentials: "include",
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(data.error || "Delete failed.");
 
       showNotification(data.message || "Checkpoint deleted.");
       fetchCheckpoints();
@@ -1069,7 +1103,8 @@ export default function AdminPage() {
 
       const res = await fetch("/api/admin/routes", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAdminAuthHeaders(true),
+        credentials: "include",
         body: JSON.stringify(payload),
       });
       const data = await res.json();
@@ -1107,7 +1142,8 @@ export default function AdminPage() {
 
       const res = await fetch(`/api/admin/routes/${editingRoute.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: getAdminAuthHeaders(true),
+        credentials: "include",
         body: JSON.stringify(payload),
       });
       const data = await res.json();
@@ -1127,7 +1163,11 @@ export default function AdminPage() {
   const handleDeleteRoute = async (r: AdminRouteItem) => {
     if (!confirm(`Delete route "${r.name}"?`)) return;
     try {
-      const res = await fetch(`/api/admin/routes/${r.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/routes/${r.id}`, {
+        method: "DELETE",
+        headers: getAdminAuthHeaders(false),
+        credentials: "include",
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
@@ -1154,7 +1194,8 @@ export default function AdminPage() {
 
       const res = await fetch("/api/admin/volunteers", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAdminAuthHeaders(true),
+        credentials: "include",
         body: JSON.stringify(payload),
       });
       const data = await res.json();
@@ -1192,7 +1233,8 @@ export default function AdminPage() {
 
       const res = await fetch(`/api/admin/volunteers/${editingVolunteer.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: getAdminAuthHeaders(true),
+        credentials: "include",
         body: JSON.stringify(payload),
       });
       const data = await res.json();
@@ -1214,7 +1256,8 @@ export default function AdminPage() {
       const nextActive = !v.active;
       const res = await fetch(`/api/admin/volunteers/${v.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: getAdminAuthHeaders(true),
+        credentials: "include",
         body: JSON.stringify({ active: nextActive }),
       });
       const data = await res.json();
@@ -1235,7 +1278,8 @@ export default function AdminPage() {
     try {
       const res = await fetch("/api/admin/team-ids", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAdminAuthHeaders(true),
+        credentials: "include",
         body: JSON.stringify({ count: Number(bulkCount), batchTag: bulkBatchTag.trim() }),
       });
       const data = await res.json();
@@ -1258,7 +1302,8 @@ export default function AdminPage() {
       const nextStatus = currentStatus === "DISABLED" ? "AVAILABLE" : "DISABLED";
       const res = await fetch(`/api/admin/team-ids/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: getAdminAuthHeaders(true),
+        credentials: "include",
         body: JSON.stringify({ status: nextStatus }),
       });
       const data = await res.json();
@@ -1298,7 +1343,8 @@ export default function AdminPage() {
 
       const res = await fetch("/api/admin/registrations", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAdminAuthHeaders(true),
+        credentials: "include",
         body: JSON.stringify(payload),
       });
       const data = await res.json();
@@ -1346,7 +1392,8 @@ export default function AdminPage() {
 
       const res = await fetch(`/api/admin/registrations/${approvingReg.id}/approve`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAdminAuthHeaders(true),
+        credentials: "include",
         body: JSON.stringify(payload),
       });
       const data = await res.json();
@@ -1368,7 +1415,8 @@ export default function AdminPage() {
     try {
       const res = await fetch(`/api/admin/registrations/${rejectingReg.id}/reject`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAdminAuthHeaders(true),
+        credentials: "include",
         body: JSON.stringify({ rejectionNote: rejectionReason.trim() }),
       });
       const data = await res.json();
